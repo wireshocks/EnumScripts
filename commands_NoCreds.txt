@@ -32,6 +32,8 @@ curl -s http://$rhost/robots.txt
 curl -s http://$rhost | batcat -s --plain #80
 open http://$rhost #80
 ffuf parameter fuzzing - dirsearch, file extensions such as php, txt, zip etc #80
+cewl -d 2 -m 5 -w create_user.txt https://$rhost/  #80
+cewl -d 2 -m 5 -w create_user.txt https://$rhost/xyz-corp  #80
 wpscan --url http://$rhost/wordPressSiteLocation? -e ap,at,u --plugins-detection aggressive -t 20 #80
 curl -s http://blog.$domain/ | grep -e 'WordPress' -e 'plugins' -e 'themes' #80
 curl -s http://blog.$domain/?p=1 | grep -e 'WordPress' -e 'plugins' -e 'themes' #80
