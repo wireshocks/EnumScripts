@@ -56,7 +56,7 @@ jxplorer #389
 nmap -p389 --script "ldap* and not brute" -n -Pn $rhost #389
 Edit> ldapsearch -x -H "ldap://$rhost" -b "CN=$computer_name,DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
 Edit> ldapsearch -x -H "ldap://$rhost" -b "DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
-Edit> nmap -p389 --script ldap-brute --script-args ldap.base='"cn=users,dc=$shortdomain,dc=c0mmm"' -Pn $rhost
+Edit> New tab plz nmap -p389 --script ldap-brute --script-args ldap.base='"cn=users,dc=$shortdomain,dc=c0mmm"' -Pn $rhost
 
 ### Port 443 (HTTPS)
 wafw00f -v https://$domain #443
