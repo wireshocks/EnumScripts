@@ -1,5 +1,6 @@
 ### Port 445 (SMB)
 smbclient -N -L //$rhost/ #445
+smbclient -N //$rhost/IPC$ #445
 nmap --script smb-vuln* -p139,445 -Pn $rhost
 enum4linux-ng -AC $rhost #445
 nxc smb $rhost -u 'anonymous' -p '' --rid-brute #445
@@ -21,11 +22,11 @@ nmap --script ftp* -p2121 -Pn $rhost #2121
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp -s 2121; exec zsh'" & disown
 
 ### Port 135 (RPC)
-rpcclient -U "" $rhost -c "enumdomusers" #135
-rpcclient -U $shortdomain/$user $rhost #135
-rpcclient -U '' $rhost #135
-rpcclient -U "" $rhost #135
-rpcclient -U''%'' $rhost #135
+rpcclient -U "" -N $rhost -c "enumdomusers" #135
+rpcclient -U $shortdomain/$user -N $rhost #135
+rpcclient -U '' -N $rhost #135
+rpcclient -U "" -N $rhost #135
+rpcclient -U''%'' -N $rhost #135
 
 ### Port 22 (SSH)
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh; exec zsh'" & disown
