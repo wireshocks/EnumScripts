@@ -79,7 +79,7 @@ evil-winrm -i $rhost -u $user -H '19a3a7550ce8c505c2d4608'
 ### Port 6379 (Redis)
 redis-cli -user $user -a $password -h $rhost
 
-### IPMI (Port 623)
+### Port 623 (IPMI)
 nmap -sU -p623 --script ipmi-version -Pn $rhost
 ipmitool -I lanplus -H $rhost -U $user -P $password chassis status
 ipmitool -I lanplus -H $rhost -U $user -P $password user list
