@@ -2,10 +2,7 @@
 import re
 import sys
 import os
-import requests  # Add this import
-
-#sudo cp your_script.py /usr/local/bin/your_script
-#sudo chmod +x /usr/local/bin/your_script
+import requests
 
 # Dictionary to store commands organized by port
 port_commands = {}
@@ -13,9 +10,8 @@ port_commands = {}
 # Read commands from the text file (now fetched via HTTP)
 commands_file_url = 'https://raw.githubusercontent.com/wireshocks/RemoteEnum/refs/heads/main/commands_WithCreds.txt'
 try:
-    # Download the file instead of opening it directly
     response = requests.get(commands_file_url)
-    response.raise_for_status()  # Check for HTTP errors
+    response.raise_for_status()
     
     current_port = None
     for line in response.text.split('\n'):
@@ -33,16 +29,14 @@ except requests.exceptions.RequestException as e:
     print(f"Details: {e}")
     sys.exit(1)
 
-
 def read_ports_file(filename):
     """Read ports from file and return as list"""
     try:
         with open(filename, 'r') as f:
             ports = []
             for line in f:
-                # Remove comments and whitespace
                 line = line.split('#')[0].strip()
-                if line:  # Only add non-empty lines
+                if line:
                     ports.append(line)
             return ports
     except FileNotFoundError:
@@ -65,11 +59,11 @@ def replace_placeholders(command, ip_address, username, password, domain, shortd
             # Skip password replacement if command contains password files
             if placeholder == "$password" and ("passwords.txt" in command or "hashes.txt" in command):
                 continue
-            if value:  # Only replace if value is provided
+            if value:
                 command = command.replace(placeholder, value)
     return command
 
-def generate_scripts(commands, ip_address, username, password, domain, shortdomain, computer_name):
+def generate_scripts(commands, ip_address, username, password, domain, shortdomain, computer_name, ports_without_commands):
     """Generate Bash script with all commands"""
     timestamp = re.sub(r'[^\w]', '_', f"{ip_address or 'target'}_{domain or 'domain'}")
     sh_filename = f"WithCreds_{timestamp}.sh"
@@ -132,6 +126,12 @@ prompt_and_run() {
         escaped_cmd = cmd.replace('"', '\\"')
         sh_content += f'prompt_and_run "{escaped_cmd}"\n'
     
+    # Add ports without commands at the end of the script
+    if ports_without_commands:
+        sh_content += '\necho -e "\\n\\n=== No commands were available for these ports: ===\\n'
+        sh_content += ', '.join(sorted(ports_without_commands, key=int)) + '"\n'
+        sh_content += 'echo "You may want to manually investigate these ports."\n'
+    
     with open(sh_filename, 'w') as f:
         f.write(sh_content)
     os.chmod(sh_filename, 0o755)
@@ -143,13 +143,18 @@ prompt_and_run() {
     print("- N: No, skip this command")
     print("- E: Edit this command before executing")
     print("- S: Stop the entire script")
+    
+    # Also print ports without commands now for immediate visibility
+    if ports_without_commands:
+        print("\n=== No commands were available for these ports: ===")
+        print(", ".join(sorted(ports_without_commands, key=int)))
+        print("You may want to manually investigate these ports.")
 
 def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} ports-IP.log")
         sys.exit(1)
     
-    # Ask for connection details
     ip_address = input("Enter target IP address (or press Enter to skip): ").strip()
     username = input("Enter username (or press Enter to skip): ").strip()
     password = input("Enter password (or press Enter to skip): ").strip()
@@ -188,19 +193,28 @@ def main():
     
     found_any = False
     all_commands = []
+    ports_with_commands = set()
+    ports_without_commands = set()
+    
     for port in target_ports:
         if port in port_commands:
             found_any = True
+            ports_with_commands.add(port)
             for cmd in port_commands[port]:
                 cmd = replace_placeholders(cmd, ip_address, username, password, domain, shortdomain, computer_name)
                 all_commands.append(cmd)
+        else:
+            ports_without_commands.add(port)
+    
+    if ports_with_commands:
+        print("### Commands were generated for these ports: ###")
+        print(", ".join(sorted(ports_with_commands, key=int)))
     
     if not found_any:
-        print("No commands found for the specified ports.")
+        print("\nNo commands found for any of the specified ports.")
         sys.exit(1)
     
-    # Generate executable Bash script
-    generate_scripts(all_commands, ip_address, username, password, domain, shortdomain, computer_name)
+    generate_scripts(all_commands, ip_address, username, password, domain, shortdomain, computer_name, ports_without_commands)
 
 if __name__ == "__main__":
     main()
