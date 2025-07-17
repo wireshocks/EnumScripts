@@ -46,7 +46,11 @@ impacket-secretsdump $shortdomain/$user@$rhost
 certipy find -u $user@$domain -p $password -dc-ip $rhost
 certipy req -u $user@$domain -p $password -dc-ip $rhost -template User -ca $ca_name
 
-### Port 135 139 (RPC)
+### Port 135 (RPC)
+rpcclient -U "$domain/$user%$password" $rhost
+rpcclient -U $domain/$user $rhost
+
+### Port 139 (RPC)
 rpcclient -U "$domain/$user%$password" $rhost
 rpcclient -U $domain/$user $rhost
 
