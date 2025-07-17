@@ -95,11 +95,13 @@ wafw00f -v https://$domain
 
 ### Port 1433 (MSSQL)
 sqsh -S $rhost -U sa -P ""
-nmap -sV -p1433 --script ms-sql-info -Pn $rhost
+nmap -p1433 --script ms-sql* -Pn $rhost
+Edit > nmap -p1433 --script ms-sql* --script-args mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -Pn $rhost
 
 ### Port 3306 (MySQL)
 mysql -u $user -h $rhost # try with no password
 mysql -h $rhost -u "" -p""
+nmap -sV -p3306 --script mysql* -Pn $rhost
 nmap -sV -p3306 --script mysql-info,mysql-variables -Pn $rhost
 nmap -sV -p3306 --script mysql-databases -Pn $rhost
 
@@ -118,6 +120,11 @@ redis-cli -h $rhost keys *
 
 ### Port 2049 (NFS)
 showmount -e $rhost
+nmap --script nfs* -p111,2049 -Pn $rhost
+
+### Port 111 (NFS)
+showmount -e $rhost
+nmap --script nfs* -p111,2049 -Pn $rhost
 
 ### Port 161 (SNMP)
 snmpwalk -v1 -c public $rhost
