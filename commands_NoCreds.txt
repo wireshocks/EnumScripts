@@ -71,7 +71,7 @@ qterminal -e "zsh -c 'for dnsname in \$(cat /usr/share/seclists/Discovery/DNS/na
 
 ### Port 80 (HTTP)
 anyHTTP including 8080 etc
-curl -s http://$rhost/robots.txt
+curl -s http://$rhost/robots.txt | batcat --plain
 qterminal -e "zsh -c 'ffuf -t 200 -ic -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt:FUZZ -v -u http://$rhost/FUZZ'" & disown
 Did you try ffuf with file extensions such as php, txt, zip etc
 locate admin portals etc using ffuf or google
@@ -89,7 +89,7 @@ cadaver http://$rhost/ITproject
 cadaver http://$rhost/maybe-it-cred-requires
 
 ### Port 443 (HTTPS)
-curl -k https://$rhost
+curl -k https://$rhost | batcat --plain
 sslscan $rhost:443
 wafw00f -v https://$domain
 
