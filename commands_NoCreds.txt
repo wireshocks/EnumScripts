@@ -136,6 +136,8 @@ nmap --script nfs* -p111,2049 -Pn $rhost
 
 ### Port 161 (SNMP)
 snmpwalk -v1 -c public $rhost
+snmpwalk -v 1c -c public $rhost NET-SNMP-EXTEND-MIB::nsExtendObjects
+snmpwalk -v 2c -c public $rhost NET-SNMP-EXTEND-MIB::nsExtendObjects
 qterminal -e "zsh -c 'onesixtyone -c /usr/share/seclists/Discovery/SNMP/common-snmp-community-strings-onesixtyone.txt $rhost; exec zsh'" & disown
 
 ### Port 9200 (Elasticsearch)
