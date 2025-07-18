@@ -43,7 +43,7 @@ rpcclient -U "" -N $rhost -c "querydispinfo"
 rpcclient -U $shortdomain/$user -N $rhost
 rpcclient -U '' -N $rhost
 rpcclient -U "" -N $rhost
-rpcclient -U''%'' -N $rhost
+rpcclient -U ''%'' -N $rhost
 
 ### Port 389 (LDAP)
 jxplorer #389
