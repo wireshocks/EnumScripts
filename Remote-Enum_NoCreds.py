@@ -69,6 +69,7 @@ echo "Remote Enumeration Script"
 echo "Author: Muharram Ali"
 echo "Email: ali.oscp@proton.me"
 echo "Version: 2025.1"
+echo "Don't forget udp port scan!"
 echo ""
 
 # Function to edit command
