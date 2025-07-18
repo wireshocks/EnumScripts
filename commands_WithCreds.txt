@@ -97,3 +97,6 @@ redis-cli -user $user -a $password -h $rhost
 nmap -sU -p623 --script ipmi-version -Pn $rhost
 ipmitool -I lanplus -H $rhost -U $user -P $password chassis status
 ipmitool -I lanplus -H $rhost -U $user -P $password user list
+
+### Port 3389 (RDP)
+xfreerdp /cert-ignore /compression /auto-reconnect /dynamic-resolution +clipboard /u:$user /p:"$password" /v:$rhost
