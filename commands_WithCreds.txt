@@ -37,9 +37,10 @@ ssh $user@$rhost -i id_rsa
 
 ### Port 53 (DNS)
 qterminal -e "zsh -c 'dnsenum $domain; exec zsh'" & disown
-bloodhound-python -d $domain -u $user -p '$password' -c All
-bloodhound-python -d $domain -u $user -p '$password' -dc $computer_name.$domain --disable-autogc -c all
-bloodhound-python -d $domain -u $user -p '$password' -ns 192.168.1.5 --disable-autogc -c all
+bloodhound-python -u $user -p '$password' -d $domain -ns $rhost -c All --zip # can add custom ns
+bloodhound-python -u $user -p '$password' -d $domain -ns $rhost --disable-autogc -c All --zip # can add custom ns
+bloodhound-python -u $user -p '$password' -d $domain -c All --zip #resolver.conf
+bloodhound-python -u $user -p '$password' -d $domain -dc $computer_name.$domain --disable-autogc -c All --zip #resolver.conf
 
 ### Port 80 (HTTP)
 hydra -L /seclists/Usernames/Names/names.txt -p $password -u -f $rhost -s 43649 http-get /
