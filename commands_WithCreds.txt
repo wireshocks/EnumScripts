@@ -56,12 +56,10 @@ certipy find -u $user@$domain -p $password -dc-ip $rhost
 certipy req -u $user@$domain -p $password -dc-ip $rhost -template User -ca $ca_name
 
 ### Port 135 (RPC)
-rpcclient -U "$domain/$user%$password" $rhost
-rpcclient -U $domain/$user $rhost
+echo -e "getusername\nenumprivs\nnetshareenum\nnetsessenum\nsrvinfo\nquerydominfo\nenumdomgroups\nquerygroupmem 0x200\nenumdomusers\nquerydispinfo\nqueryuser anyuser123\nexit" | rpcclient -U 'puppy.htb/levi.james%KingofAkron2025!' $rhost
 
 ### Port 139 (RPC)
-rpcclient -U "$domain/$user%$password" $rhost
-rpcclient -U $domain/$user $rhost
+echo -e "getusername\nenumprivs\nnetshareenum\nnetsessenum\nsrvinfo\nquerydominfo\nenumdomgroups\nquerygroupmem 0x200\nenumdomusers\nquerydispinfo\nqueryuser anyuser123\nexit" | rpcclient -U 'puppy.htb/levi.james%KingofAkron2025!' $rhost
 
 ### Port 389 (LDAP)
 ldapdomaindump -u $domain\\$user -p $password $rhost
