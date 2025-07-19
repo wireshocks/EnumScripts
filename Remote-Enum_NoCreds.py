@@ -75,8 +75,8 @@ echo ""
 # Function to edit command
 edit_command() {
     local cmd="$1"
-    echo -e "\\nCurrent command: $cmd"
-    read -p "Edit command (leave empty to keep current): " new_cmd
+    echo -e "\nCurrent command: $cmd"
+    read -r -p "Edit command (leave empty to keep current): " new_cmd < /dev/tty
     if [ -n "$new_cmd" ]; then
         echo "$new_cmd"
     else
@@ -87,9 +87,11 @@ edit_command() {
 # Function to prompt for command execution
 prompt_and_run() {
     local cmd="$1"
-    echo -e "\\n===== Next command: ============================================================================\\n$cmd"
     while true; do
-        read -p "Execute this command? (Y/N/E/S): " yn
+        echo -e "\n===== Next command: =============================================================="
+        echo "$cmd"
+        read -r -p "Execute this command? (Y/N/E/S): " yn < /dev/tty
+        
         case $yn in
             [Yy]* ) 
                 echo "Executing..."
