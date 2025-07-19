@@ -38,12 +38,7 @@ rpcclient -U "" -N $rhost
 rpcclient -U''%'' -N $rhost
 
 ### Port 139 (RPC)
-rpcclient -U "" -N $rhost -c "enumdomusers"
-rpcclient -U "" -N $rhost -c "querydispinfo"
-rpcclient -U $shortdomain/$user -N $rhost
-rpcclient -U '' -N $rhost
-rpcclient -U "" -N $rhost
-rpcclient -U ''%'' -N $rhost
+echo -e "getusername\nenumprivs\nnetshareenum\nnetsessenum\nsrvinfo\nquerydominfo\nenumdomgroups\nquerygroupmem 0x200\nenumdomusers\nquerydispinfo\nqueryuser guest\nexit" | rpcclient -U '' -N $rhost
 
 ### Port 389 (LDAP)
 jxplorer #389
