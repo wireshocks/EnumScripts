@@ -206,6 +206,12 @@ echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKCU\Software\Policies\Microsoft
 reg query "HKCU\Software\Policies\Microsoft\Windows\Installer" /v AlwaysInstallElevated 2>nul | findstr /v /i "ERROR"
 echo.
 
+echo %BOLD%%RED%+++++++++++Search Recyclebins +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%wmic useraccount get name,sid%RESET%
+echo  %YELLOW%And then dir C:\$Recycle.Bin\SID%RESET%
+wmic useraccount get name,sid
+echo.
+
 echo %BOLD%%RED%+++++++++++ Go Beyond +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%RESET%
 echo %BOLD%[!!]%RESET%%RED% Nothing Found!%RESET%
 echo %GREEN%[+]%RESET% Try to add reg key manually to make the system vulnerable to priv escalation. check gitbook 12.2
