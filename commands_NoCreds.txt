@@ -104,7 +104,7 @@ Edit > nmap -p1433 --script ms-sql* --script-args mssql.username=sa,mssql.passwo
 ### Port 3306 (MySQL)
 mysql -u $user -h $rhost # try with no password
 mysql -h $rhost -u "" -p""
-nmap -sV -p3306 --script mysql* -Pn $rhost
+qterminal -e "nmap -sV -p3306 --script mysql* -Pn $rhost; exec zsh'" & disown
 nmap -sV -p3306 --script mysql-info,mysql-variables -Pn $rhost
 nmap -sV -p3306 --script mysql-databases -Pn $rhost
 
