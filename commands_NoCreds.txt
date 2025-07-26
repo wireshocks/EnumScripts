@@ -81,6 +81,7 @@ locate admin portals etc using ffuf or google
 curl -s http://$rhost | batcat -s --plain
 ffuf -w /path/to/lfi-payloads.txt -u http://$rhost/page?file=FUZZ
 curl "http://$rhost/file?name=../../../../etc/passwd"
+open http://$shortdomain.$domain/ #must be added in hosts file
 open http://$rhost
 cewl -d 2 -m 5 -w create_user.txt https://$rhost/
 cewl -d 2 -m 5 -w create_user.txt https://$rhost/xyz-corp
@@ -92,6 +93,8 @@ cadaver http://$rhost/ITproject
 cadaver http://$rhost/Remove-this-n-try
 
 ### Port 443 (HTTPS)
+open https://$shortdomain.$domain/ #must be added in hosts file
+open http://$rhost
 curl -k https://$rhost | batcat --plain
 sslscan $rhost:443
 wafw00f -v https://$domain
