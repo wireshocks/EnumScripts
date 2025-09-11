@@ -1,1 +1,323 @@
-// Next query Domain Information# query 1 Domain MemberMATCH p = (t:Group)<-[:MemberOf*1..]-(a)WHERE (a:User or a:Computer) and t.objectid ENDS WITH '-512'RETURN pLIMIT 1000;# query 2 Identifying potential cross-domain attack pathsMATCH p = (:Domain)-[:SameForestTrust|CrossForestTrust]->(:Domain)RETURN pLIMIT 1000;# query 3 High Value Objects or locations of Tier ZeroMATCH p = (t:Base)<-[:Contains*1..]-(:Domain)WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0'RETURN pLIMIT 1000;// Next query Dangerous Privileges# query 4 Principals with DCSync PrivilegesMATCH p=(:Base)-[:DCSync|AllExtendedRights|GenericAll]->(:Domain)RETURN pLIMIT 1000;# query 5 Foreign Domain Group Membership potentially cross-domain trust abuseMATCH p=(s:Base)-[:MemberOf]->(t:Group)WHERE s.domainsid<>t.domainsidRETURN pLIMIT 1000;# query 6 Computers where domain users are Local administratorsMATCH p=(s:Group)-[:AdminTo]->(:Computer)WHERE s.objectid ENDS WITH '-513'RETURN pLIMIT 1000;# query 7 Computers where Domain Users can read LAPS passwordsMATCH p=(s:Group)-[:AllExtendedRights|ReadLAPSPassword]->(:Computer)WHERE s.objectid ENDS WITH '-513'RETURN pLIMIT 1000;# query 8 Paths from Domain Users to Tier Zero or High Value targetsMATCH p=shortestPath((s:Group)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s.objectid ENDS WITH '-513' AND s<>tRETURN pLIMIT 1000;# query 9 Computers where Domain Users can RDPMATCH p=(s:Group)-[:CanRDP]->(t:Computer)WHERE s.objectid ENDS WITH '-513' AND NOT toUpper(t.operatingsystem) CONTAINS 'SERVER'RETURN pLIMIT 1000;# query 10 Servers where Domain Users can RDPMATCH p=(s:Group)-[:CanRDP]->(t:Computer)WHERE s.objectid ENDS WITH '-513' AND toUpper(t.operatingsystem) CONTAINS 'SERVER'RETURN pLIMIT 1000;# query 11 Dangerous privileges for Domain Users groupsMATCH p=(s:Group)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation]->(:Base)WHERE s.objectid ENDS WITH '-513'RETURN pLIMIT 1000;# query 12 Domain Admins logon to non-Domain ControllersMATCH (s)-[:MemberOf*0..]->(g:Group)WHERE g.objectid ENDS WITH '-516'WITH COLLECT(s) AS excludeMATCH p = (c:Computer)-[:HasSession]->(:User)-[:MemberOf*1..]->(g:Group)WHERE g.objectid ENDS WITH '-512' AND NOT c IN excludeRETURN pLIMIT 1000;// Next query Kerberos Interaction# query 13 Kerberoastable members of Tier Zero / High Value groupsMATCH (u:User)WHERE u.hasspn=trueAND u.enabled = trueAND NOT u.objectid ENDS WITH '-502'AND NOT COALESCE(u.gmsa, false) = trueAND NOT COALESCE(u.msa, false) = trueAND COALESCE(u.system_tags, '') CONTAINS 'admin_tier_0'RETURN uLIMIT 100;# query 14 All Kerberoastable usersMATCH (u:User)WHERE u.hasspn=trueAND u.enabled = trueAND NOT u.objectid ENDS WITH '-502'AND NOT COALESCE(u.gmsa, false) = trueAND NOT COALESCE(u.msa, false) = trueRETURN uLIMIT 100;# query 15 Kerberoastable users with most admin privilegesMATCH (u:User)WHERE u.hasspn = true  AND u.enabled = true  AND NOT u.objectid ENDS WITH '-502'  AND NOT COALESCE(u.gmsa, false) = true  AND NOT COALESCE(u.msa, false) = trueMATCH (u)-[:MemberOf|AdminTo*1..]->(c:Computer)WITH DISTINCT u, COUNT(c) AS adminCountRETURN uORDER BY adminCount DESCLIMIT 100;# query 16 AS-REP Roastable usersMATCH (u:User)WHERE u.dontreqpreauth = trueAND u.enabled = trueRETURN uLIMIT 100;// Next query Shortest Paths# query 17 Shortest paths to systems trusted for unconstrained delegationMATCH p=shortestPath((s)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t:Computer))WHERE t.unconstraineddelegation = true AND s<>tRETURN pLIMIT 1000;# query 18 Shortest paths to Domain Admins from Kerberoastable usersMATCH p=shortestPath((s:User)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t:Group))WHERE s.hasspn=trueAND s.enabled = trueAND NOT s.objectid ENDS WITH '-502'AND NOT COALESCE(s.gmsa, false) = trueAND NOT COALESCE(s.msa, false) = trueAND t.objectid ENDS WITH '-512'RETURN pLIMIT 1000;# query 19 Shortest paths to Tier Zero or High Value targetsMATCH p=shortestPath((s)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s<>tRETURN pLIMIT 1000;# query 20 Shortest paths from Domain Users to Teir Zero or High Value targetsMATCH p=shortestPath((s:Group)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s.objectid ENDS WITH '-513' AND s<>tRETURN pLIMIT 1000;# query 21 Shortest paths to Domain AdminsMATCH p=shortestPath((t:Group)<-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]-(s:Base))WHERE t.objectid ENDS WITH '-512' AND s<>tRETURN pLIMIT 1000;# query 22 Shortest Paths from Owned Objects to Tier Zero - Run AT YOUR OWN RISKMATCH p=shortestPath((s)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s<>t AND COALESCE(s.system_tags, '') CONTAINS 'owned'RETURN pLIMIT 1000;# query 23 Shortest paths from Owned objectsMATCH p=shortestPath((s:Base)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t:Base))WHERE COALESCE(s.system_tags, '') CONTAINS 'owned' AND s<>tRETURN pLIMIT 1000;// Next query Active Directory Hygiene# query 24 Domains where any user can join or add a computer to the domainMATCH (d:Domain)WHERE d.machineaccountquota > 0RETURN d;// Next query NTLM Relay Attacks# query 25 DCs vulnerable to NTLM relay to LDAP attacksMATCH p = (dc:Computer)-[:DCFor]->(:Domain)WHERE (dc.ldapavailable = True AND dc.ldapsigning = False)OR (dc.ldapsavailable = True AND dc.ldapsepa = False)OR (dc.ldapavailable = True AND dc.ldapsavailable = True AND dc.ldapsigning = False and dc.ldapsepa = True)RETURN p;# query 26 Computers with the WebClient RunningMATCH (c:Computer)WHERE c.webclientrunning = TrueRETURN c LIMIT 1000;# query 27 Computers not requiring inbound SMB signingMATCH (n:Computer)WHERE n.smbsigning = FalseRETURN n;// Custom Queries# query 30 Replace keyword with a service type or server name (not FQDN)WITH "KEYWORD" as SPNKeywordMATCH (n:User)WHERE ANY(keyword IN n.serviceprincipalnames WHERE toUpper(keyword) CONTAINS toUpper(SPNKeyword))RETURN n;# query 31 All DNSAdminsMATCH p=(n:Base)-[:MemberOf]->(g:Group) WHERE n.name STARTS WITH "DNSADMINS@"RETURN p;# query 32 Computer owners who can obtain LAPS passwordsMATCH p = (c:Computer)<-[:GenericAll|Owns|WriteDacl|WriteOwner|AllExtendedRights]-(n:User)WHERE c.haslaps = true AND c.ownersid = n.objectidRETURN p;# query 33 Domains affected by Exchange privilege escalation riskMATCH p=(n:Group)-[r:WriteDacl|ForceChangePassword|AddMember]->(m:Base)WHERE n.name STARTS WITH "EXCHANGE "AND ((m:Tag_Tier_Zero) OR COALESCE(m.system_tags, '') CONTAINS 'admin_tier_0')RETURN p;# query 34 Kerberos-enabled service account member of built-in Admins groupsMATCH p=(n:Base)-[:MemberOf*1..]->(g:Group)WHERE (  g.objectid ENDS WITH '-512' // Domain Admins  OR g.objectid ENDS WITH '-519' // Enterprise Admins  OR g.objectid ENDS WITH '-518' // Schema Admins)AND n.hasspn = trueRETURN p;# query 35 Accounts with clear-text password attributesMATCH (n:Base)WHERE n.userpassword IS NOT NULLOR n.unixpassword IS NOT NULLOR n.unicodepwd IS NOT NULLOR n.msSFU30Password IS NOT NULLRETURN n;# query 36 Enabled built-in guest user accountsMATCH (n:User)WHERE n.objectid ENDS WITH "-501"AND n.enabled = trueRETURN n;
+// Next query Domain Information
+
+# query 1 Domain Admins
+
+MATCH p = (t:Group)<-[:MemberOf*1..]-(a)
+WHERE (a:User or a:Computer) and t.objectid ENDS WITH '-512'
+RETURN p
+LIMIT 1000;
+
+
+# query 2 Identifying potential cross-domain attack paths
+
+MATCH p = (:Domain)-[:SameForestTrust|CrossForestTrust]->(:Domain)
+RETURN p
+LIMIT 1000;
+
+
+# query 3 High Value Objects or locations of Tier Zero
+
+MATCH p = (t:Base)<-[:Contains*1..]-(:Domain)
+WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0'
+RETURN p
+LIMIT 1000;
+
+
+// Next query Dangerous Privileges
+
+# query 4 Principals with DCSync Privileges
+
+MATCH p=(:Base)-[:DCSync|AllExtendedRights|GenericAll]->(:Domain)
+RETURN p
+LIMIT 1000;
+
+
+# query 5 Foreign Domain Group Membership potentially cross-domain trust abuse
+
+MATCH p=(s:Base)-[:MemberOf]->(t:Group)
+WHERE s.domainsid<>t.domainsid
+RETURN p
+LIMIT 1000;
+
+
+# query 6 Computers where domain users are Local administrators
+
+MATCH p=(s:Group)-[:AdminTo]->(:Computer)
+WHERE s.objectid ENDS WITH '-513'
+RETURN p
+LIMIT 1000;
+
+
+# query 7 Computers where Domain Users can read LAPS passwords
+
+MATCH p=(s:Group)-[:AllExtendedRights|ReadLAPSPassword]->(:Computer)
+WHERE s.objectid ENDS WITH '-513'
+RETURN p
+LIMIT 1000;
+
+
+# query 8 Paths from Domain Users to Tier Zero or High Value targets
+
+MATCH p=shortestPath((s:Group)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))
+
+WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s.objectid ENDS WITH '-513' AND s<>t
+RETURN p
+LIMIT 1000;
+
+
+# query 9 Computers where Domain Users can RDP
+
+MATCH p=(s:Group)-[:CanRDP]->(t:Computer)
+WHERE s.objectid ENDS WITH '-513' AND NOT toUpper(t.operatingsystem) CONTAINS 'SERVER'
+RETURN p
+LIMIT 1000;
+
+
+# query 10 Servers where Domain Users can RDP
+
+MATCH p=(s:Group)-[:CanRDP]->(t:Computer)
+WHERE s.objectid ENDS WITH '-513' AND toUpper(t.operatingsystem) CONTAINS 'SERVER'
+RETURN p
+LIMIT 1000;
+
+
+# query 11 Dangerous privileges for Domain Users groups
+
+MATCH p=(s:Group)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation]->(:Base)
+
+WHERE s.objectid ENDS WITH '-513'
+RETURN p
+LIMIT 1000;
+
+
+# query 12 Domain Admins logon to non-Domain Controllers
+
+MATCH (s)-[:MemberOf*0..]->(g:Group)
+WHERE g.objectid ENDS WITH '-516'
+WITH COLLECT(s) AS exclude
+MATCH p = (c:Computer)-[:HasSession]->(:User)-[:MemberOf*1..]->(g:Group)
+WHERE g.objectid ENDS WITH '-512' AND NOT c IN exclude
+RETURN p
+LIMIT 1000;
+
+
+// Next query Kerberos Interaction
+
+# query 13 Kerberoastable members of Tier Zero / High Value groups
+
+MATCH (u:User)
+WHERE u.hasspn=true
+AND u.enabled = true
+AND NOT u.objectid ENDS WITH '-502'
+AND NOT COALESCE(u.gmsa, false) = true
+AND NOT COALESCE(u.msa, false) = true
+AND COALESCE(u.system_tags, '') CONTAINS 'admin_tier_0'
+MATCH p=(u)-[:MemberOf*0]->(u)
+RETURN p
+LIMIT 100;
+
+# query 14 All Kerberoastable users
+
+MATCH (u:User)
+WHERE u.hasspn=true
+AND u.enabled = true
+AND NOT u.objectid ENDS WITH '-502'
+AND NOT COALESCE(u.gmsa, false) = true
+AND NOT COALESCE(u.msa, false) = true
+MATCH p=(u)-[:MemberOf*0]->(u)
+RETURN p
+LIMIT 100;
+
+
+# query 15 Kerberoastable users with most admin privileges
+
+MATCH (u:User)
+WHERE u.hasspn = true
+AND u.enabled = true
+AND NOT u.objectid ENDS WITH '-502'
+AND NOT COALESCE(u.gmsa, false) = true
+AND NOT COALESCE(u.msa, false) = true
+MATCH (u)-[:MemberOf|AdminTo*1..]->(c:Computer)
+WITH DISTINCT u, COUNT(c) AS adminCount
+MATCH p=(u)-[:MemberOf*0]->(u)
+RETURN p
+ORDER BY adminCount DESC
+LIMIT 100;
+
+
+# query 16 AS-REP Roastable users
+MATCH (u:User)
+WHERE u.dontreqpreauth = true
+AND u.enabled = true
+MATCH p=(u)-[:MemberOf*0]->(u)
+RETURN p
+LIMIT 100;
+
+
+// Next query Shortest Paths
+
+# query 17 Shortest paths to systems trusted for unconstrained delegation
+
+MATCH p=shortestPath((s)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t:Computer))
+
+WHERE t.unconstraineddelegation = true AND s<>t
+RETURN p
+LIMIT 1000;
+
+
+# query 18 Shortest paths to Domain Admins from Kerberoastable users
+
+MATCH p=shortestPath((s:User)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t:Group))
+
+WHERE s.hasspn=true
+AND s.enabled = true
+AND NOT s.objectid ENDS WITH '-502'
+AND NOT COALESCE(s.gmsa, false) = true
+AND NOT COALESCE(s.msa, false) = true
+AND t.objectid ENDS WITH '-512'
+RETURN p
+LIMIT 1000;
+
+
+# query 19 Shortest paths to Tier Zero or High Value targets
+
+MATCH p=shortestPath((s)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))
+
+WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s<>t
+RETURN p
+LIMIT 1000;
+
+
+# query 20 Shortest paths from Domain Users to Teir Zero or High Value targets
+
+MATCH p=shortestPath((s:Group)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))
+
+WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s.objectid ENDS WITH '-513' AND s<>t
+RETURN p
+LIMIT 1000;
+
+
+# query 21 Shortest paths to Domain Admins
+
+MATCH p=shortestPath((t:Group)<-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]-(s:Base))
+
+WHERE t.objectid ENDS WITH '-512' AND s<>t
+RETURN p
+LIMIT 1000;
+
+
+# query 22 Shortest Paths from Owned Objects to Tier Zero - Run AT YOUR OWN RISK
+
+MATCH p=shortestPath((s)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t))
+
+WHERE COALESCE(t.system_tags, '') CONTAINS 'admin_tier_0' AND s<>t
+AND COALESCE(s.system_tags, '') CONTAINS 'owned'
+RETURN p
+LIMIT 1000;
+
+
+# query 23 Shortest paths from Owned objects
+
+MATCH p=shortestPath((s:Base)-[:Owns|GenericAll|GenericWrite|WriteOwner|WriteDacl|MemberOf|ForceChangePassword|AllExtendedRights|AddMember|HasSession|AllowedToDelegate|CoerceToTGT|AllowedToAct|AdminTo|CanPSRemote|CanRDP|ExecuteDCOM|HasSIDHistory|AddSelf|DCSync|ReadLAPSPassword|ReadGMSAPassword|DumpSMSAPassword|SQLAdmin|AddAllowedToAct|WriteSPN|AddKeyCredentialLink|SyncLAPSPassword|WriteAccountRestrictions|WriteGPLink|GoldenCert|ADCSESC1|ADCSESC3|ADCSESC4|ADCSESC6a|ADCSESC6b|ADCSESC9a|ADCSESC9b|ADCSESC10a|ADCSESC10b|ADCSESC13|SyncedToEntraUser|CoerceAndRelayNTLMToSMB|CoerceAndRelayNTLMToADCS|WriteOwnerLimitedRights|OwnsLimitedRights|CoerceAndRelayNTLMToLDAP|CoerceAndRelayNTLMToLDAPS|ContainsIdentity|PropagatesACEsTo|GPOAppliesTo|CanApplyGPO|HasTrustKeys|DCFor|SameForestTrust|SpoofSIDHistory|AbuseTGTDelegation*1..]->(t:Base))
+
+WHERE COALESCE(s.system_tags, '') CONTAINS 'owned' AND s<>t
+RETURN p
+LIMIT 1000;
+
+
+// Next query Active Directory Hygiene
+
+# query 24 Domains where any user can join or add a computer to the domain
+
+MATCH (d:Domain)
+WHERE d.machineaccountquota > 0
+RETURN d;
+
+
+// Next query NTLM Relay Attacks
+
+# query 25 DCs vulnerable to NTLM relay to LDAP attacks
+
+MATCH p = (dc:Computer)-[:DCFor]->(:Domain)
+WHERE (dc.ldapavailable = True AND dc.ldapsigning = False)
+OR (dc.ldapsavailable = True AND dc.ldapsepa = False)
+OR (dc.ldapavailable = True AND dc.ldapsavailable = True AND dc.ldapsigning = False and dc.ldapsepa = True)
+RETURN p;
+
+
+# query 26 Computers with the WebClient Running
+
+MATCH (c:Computer)
+WHERE c.webclientrunning = True
+RETURN c LIMIT 1000;
+
+
+# query 27 Computers not requiring inbound SMB signing
+
+MATCH (n:Computer)
+WHERE n.smbsigning = False
+RETURN n;
+
+// Custom Queries
+# query 28 Replace keyword with a service type or server name (not FQDN)
+
+WITH "KEYWORD" as SPNKeyword
+MATCH (n:User)
+WHERE ANY(keyword IN n.serviceprincipalnames WHERE toUpper(keyword) CONTAINS toUpper(SPNKeyword))
+RETURN n;
+
+
+# query 29 All DNSAdmins
+
+MATCH p=(n:Base)-[:MemberOf]->(g:Group) 
+WHERE n.name STARTS WITH "DNSADMINS@"
+RETURN p;
+
+
+# query 30 Computer owners who can obtain LAPS passwords
+
+MATCH p = (c:Computer)<-[:GenericAll|Owns|WriteDacl|WriteOwner|AllExtendedRights]-(n:User)
+WHERE c.haslaps = true AND c.ownersid = n.objectid
+RETURN p;
+
+
+# query 31 Domains affected by Exchange privilege escalation risk
+
+MATCH p=(n:Group)-[r:WriteDacl|ForceChangePassword|AddMember]->(m:Base)
+WHERE n.name STARTS WITH "EXCHANGE "
+AND ((m:Tag_Tier_Zero) OR COALESCE(m.system_tags, '') CONTAINS 'admin_tier_0')
+RETURN p;
+
+
+# query 32 Kerberos-enabled service account member of built-in Admins groups
+
+MATCH p=(n:Base)-[:MemberOf*1..]->(g:Group)
+WHERE (
+
+  g.objectid ENDS WITH '-512' // Domain Admins
+
+  OR g.objectid ENDS WITH '-519' // Enterprise Admins
+
+  OR g.objectid ENDS WITH '-518' // Schema Admins
+
+)
+AND n.hasspn = true
+RETURN p;
+
+
+# query 33 Accounts with clear-text password attributes
+
+MATCH (n:Base)
+WHERE n.userpassword IS NOT NULL
+OR n.unixpassword IS NOT NULL
+OR n.unicodepwd IS NOT NULL
+OR n.msSFU30Password IS NOT NULL
+RETURN n;
+
+
+# query 34 Enabled built-in guest user accounts
+
+MATCH (n:User)
+WHERE n.objectid ENDS WITH "-501"
+AND n.enabled = true
+RETURN n;
