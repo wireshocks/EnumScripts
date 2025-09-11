@@ -12,7 +12,7 @@ QUERY_FILE = "cypher_queries.txt"
 
 # Query comments mapping
 QUERY_COMMENTS = {
-    1: "Domain Member",
+    1: "Domain Admins",
     2: "Identifying potential cross-domain attack paths",
     3: "High Value Objects or locations of Tier Zero",
     4: "Principals with DCSync Privileges",
@@ -148,4 +148,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
