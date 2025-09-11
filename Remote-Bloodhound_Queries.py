@@ -137,7 +137,8 @@ def main():
         print(f"Error: {e}")
     finally:
         driver.close()
-        print("Idea by Muharram Ali")
+        print("Idea by:")
+        print("Muharram Ali")
         print("-------------------------------------------")
         print("You can now run the command below to view the query you’re interested in!")
         print("-------------------------------------------")
@@ -147,3 +148,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
