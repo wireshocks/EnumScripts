@@ -10,6 +10,44 @@ PASSWORD = "Neo4j"  # Update with your Neo4j password
 # Input file containing Cypher queries
 QUERY_FILE = "cypher_queries.txt"
 
+# Query comments mapping
+QUERY_COMMENTS = {
+    1: "Domain Member",
+    2: "Identifying potential cross-domain attack paths",
+    3: "High Value Objects or locations of Tier Zero",
+    4: "Principals with DCSync Privileges",
+    5: "Foreign Domain Group Membership potentially cross-domain trust abuse",
+    6: "Computers where domain users are Local administrators",
+    7: "Computers where Domain Users can read LAPS passwords",
+    8: "Paths from Domain Users to Tier Zero or High Value targets",
+    9: "Computers where Domain Users can RDP",
+    10: "Servers where Domain Users can RDP",
+    11: "Dangerous privileges for Domain Users groups",
+    12: "Domain Admins logon to non-Domain Controllers",
+    13: "Kerberoastable members of Tier Zero / High Value groups",
+    14: "All Kerberoastable users",
+    15: "Kerberoastable users with most admin privileges",
+    16: "AS-REP Roastable users",
+    17: "Shortest paths to systems trusted for unconstrained delegation",
+    18: "Shortest paths to Domain Admins from Kerberoastable users",
+    19: "Shortest paths to Tier Zero or High Value targets",
+    20: "Shortest paths from Domain Users to Teir Zero or High Value targets",
+    21: "Shortest paths to Domain Admins",
+    22: "Shortest Paths from Owned Objects to Tier Zero - Run AT YOUR OWN RISK",
+    23: "Shortest paths from Owned objects",
+    24: "Domains where any user can join or add a computer to the domain",
+    25: "DCs vulnerable to NTLM relay to LDAP attacks",
+    26: "Computers with the WebClient Running",
+    27: "Computers not requiring inbound SMB signing",
+    28: "Replace keyword with a service type or server name (not FQDN)",
+    29: "All DNSAdmins",
+    30: "Computer owners who can obtain LAPS passwords",
+    31: "Domains affected by Exchange privilege escalation risk",
+    32: "Kerberos-enabled service account member of built-in Admins groups",
+    33: "Accounts with clear-text password attributes",
+    34: "Enabled built-in guest user accounts"
+}
+
 def read_queries(file_path):
     """Read Cypher queries from a text file, ignoring comments and empty lines."""
     queries = []
@@ -82,9 +120,12 @@ def main():
             except Exception as e:
                 print(f"Query {i} failed: {e}")
         
-        # Report successful queries (those with relationships)
+        # Report successful queries (those with relationships) with comments
         if successful_queries:
-            print("Queries with relationships:", ", ".join(f"Query {num}" for num in successful_queries))
+            print("Queries with relationships:")
+            for num in successful_queries:
+                comment = QUERY_COMMENTS.get(num, "No comment available")
+                print(f"Query {num}: {comment}")
         else:
             print("No queries returned relationships.")
         
@@ -96,15 +137,13 @@ def main():
         print(f"Error: {e}")
     finally:
         driver.close()
-        print("Idea by Muharram Ali")  # message
-        print("-------------------------------------------")  # message
-        print("You can now run the command below to view the query you’re interested in!")  # message
-        print("-------------------------------------------")  # message
-        print("sed -n '/Query 2/,+9p' cypher_queries.txt")  # +9p = Read from line 9 onwards
+        print("Idea by Muharram Ali")
+        print("-------------------------------------------")
+        print("You can now run the command below to view the query you’re interested in!")
+        print("-------------------------------------------")
         print("cat cypher_queries.txt | grep query")  # Read query lines
-        print("Read More info on BloodHound's General Tab and Check Layout for table")  # +9p = Read from line 9 onwards
-        print("Make sure you have marked owned users and computers before running this script")  # +9p = Read from line 9 onwards
-                
+        print("Read More info on BloodHound's General Tab and Check Layout for table")
+        print("Make sure you have marked owned users and computers before running this script")
 
 if __name__ == "__main__":
     main()
