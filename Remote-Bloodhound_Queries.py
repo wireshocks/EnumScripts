@@ -39,13 +39,16 @@ QUERY_COMMENTS = {
     25: "DCs vulnerable to NTLM relay to LDAP attacks",
     26: "Computers with the WebClient Running",
     27: "Computers not requiring inbound SMB signing",
-    28: "Replace keyword with a service type or server name (not FQDN)",
-    29: "All DNSAdmins",
-    30: "Computer owners who can obtain LAPS passwords",
-    31: "Domains affected by Exchange privilege escalation risk",
-    32: "Kerberos-enabled service account member of built-in Admins groups",
-    33: "Accounts with clear-text password attributes",
-    34: "Enabled built-in guest user accounts"
+    28: "-Custom- Replace keyword with a service type or server name (not FQDN)",
+    29: "-Custom- Custom All DNSAdmins",
+    30: "-Custom- Computer owners who can obtain LAPS passwords",
+    31: "-Custom- Domains affected by Exchange privilege escalation risk",
+    32: "-Custom- Kerberos-enabled service account member of built-in Admins groups",
+    33: "-Custom- Accounts with clear-text password attributes",
+    34: "-Custom- Enabled built-in guest user accounts",
+    35: "-Custom- Find Users with outbound object control",
+    36: "-Custom-  Find Users with outbound object control to any node",
+    37: "-Custom-  Find groups with outbound object control to computers"
 }
 
 def read_queries(file_path):
@@ -148,5 +151,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
