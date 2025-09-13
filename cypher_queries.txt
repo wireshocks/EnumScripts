@@ -318,6 +318,26 @@ RETURN n;
 # query 34 Enabled built-in guest user accounts
 
 MATCH (n:User)
-WHERE n.objectid ENDS WITH "-501"
+WHERE n.objectid ENDS WITH '-501'
 AND n.enabled = true
-RETURN n;
+MATCH p=(n)-[:MemberOf*0]->(n)
+RETURN p
+LIMIT 100;
+
+# query 35 -Custom Find Users with outbound object control
+MATCH p=(u:User)-[:GenericAll|WriteOwner|WriteDacl|AllExtendedRights]->(n)
+WHERE n:User
+RETURN p
+LIMIT 100;
+
+# query 36 -Custom  Find Users with outbound object control to any node
+MATCH p=(u:User)-[:GenericAll|WriteOwner|WriteDacl|AllExtendedRights]->(n)
+WHERE n:User OR n:Group OR n:Computer OR n:Domain
+RETURN p
+LIMIT 100;
+
+# query 37 -Custom  Find groups with outbound object control to computers
+MATCH p=(g:Group)-[:GenericAll|WriteOwner|WriteDacl|AllExtendedRights]->(n)
+WHERE n:Computer
+RETURN p
+LIMIT 100;
