@@ -100,7 +100,8 @@ sslscan $rhost:443
 wafw00f -v https://$domain
 
 ### Port 1433 (MSSQL)
-sqsh -S $rhost -U sa -P ""
+nxc mssql $rhost -u sa -p '' --local-auth
+nxc mysql $rhost -u root -p ''
 nmap -p1433 --script ms-sql* -Pn $rhost
 Edit > nmap -p1433 --script ms-sql* --script-args mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -Pn $rhost
 
@@ -133,6 +134,7 @@ showmount -e $rhost
 nmap --script nfs* -p111,2049 -Pn $rhost
 
 ### Port 161 (SNMP)
+snmp-check $rhost -c public
 snmpwalk -v1 -c public $rhost
 snmpwalk -v 1c -c public $rhost NET-SNMP-EXTEND-MIB::nsExtendObjects
 snmpwalk -v 2c -c public $rhost NET-SNMP-EXTEND-MIB::nsExtendObjects
