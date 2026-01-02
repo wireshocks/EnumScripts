@@ -1,6 +1,7 @@
 ### Port 445 (SMB)
 smbclient -L //$rhost/ -U $domain/$user
 nxc smb $rhost -u '$user' -p '$password' --users
+crackmapexec smb $rhost -u $user -p '$password' -d $domain --users
 crackmapexec smb $rhost -u $user -p '$password' --loggedon-users
 impacket-secretsdump $shortdomain/$user@$rhost
 crackmapexec smb $rhost -u $user -p '$password' --sam
