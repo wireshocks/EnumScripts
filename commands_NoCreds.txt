@@ -4,10 +4,11 @@ smbclient -N //$rhost/IPC$
 nmap -p445 --script smb-protocols $rhost | grep "3.11"
 nmap --script smb-vuln* -p139,445 -Pn $rhost
 enum4linux-ng -A $rhost
+impacket-lookupsid anonymous@$rhost
+impacket-lookupsid '$domain/anonymous'@$domain -no-pass
 nxc smb $rhost -u 'anonymous' -p '' --rid-brute
 nxc smb $rhost -u "" -p "" --users
 nxc smb $rhost -u "" -p "" --pass-pol
-impacket-lookupsid anonymous@$rhost
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost smb; exec zsh'" & disown
 
 ### Port 21 (FTP)
@@ -30,12 +31,7 @@ qterminal -e "zsh -c 'hydra -I -l root -P ~/rockyou.txt -e nsr -t 1 \$rhost ssh;
 medusa -u $user -P ~/rockyou.txt -h $rhost -M ssh
 
 ### Port 135 (RPC)
-rpcclient -U "" -N $rhost -c "enumdomusers"
-rpcclient -U "" -N $rhost -c "querydispinfo"
 rpcclient -U $shortdomain/$user -N $rhost
-rpcclient -U '' -N $rhost
-rpcclient -U "" -N $rhost
-rpcclient -U''%'' -N $rhost
 
 ### Port 139 (RPC)
 echo -e "getusername\nenumprivs\nnetshareenum\nnetsessenum\nsrvinfo\nquerydominfo\nenumdomgroups\nquerygroupmem 0x200\nenumdomusers\nquerydispinfo\nqueryuser guest\nexit" | rpcclient -U '' -N $rhost
