@@ -38,10 +38,13 @@ ssh $user@$rhost -i id_rsa
 
 ### Port 53 (DNS)
 qterminal -e "zsh -c 'dnsenum $domain; exec zsh'" & disown
-bloodhound-python -u $user -p '$password' -d $domain -ns $rhost -c All --zip # can add custom ns
-bloodhound-python -u $user -p '$password' -d $domain -ns $rhost --disable-autogc -c All --zip # can add custom ns
-bloodhound-python -u $user -p '$password' -d $domain -c All --zip #resolver.conf
-bloodhound-python -u $user -p '$password' -d $domain -dc $computer_name.$domain --disable-autogc -c All --zip #resolver.conf
+bloodhound-ce-python -c All -u $user -p '$password' -d $domain -ns $rhost --zip
+bloodhound-ce-python -c All -u $user -p '$password' -d $domain --zip
+bloodhound-ce-python -u $user --hashes :nt-hash-here -d $domain -ns $rhost
+bloodhound-python -u $user -p '$password' -d $domain -ns $rhost -c All --zip # Legacy bloodhound
+bloodhound-python -u $user -p '$password' -d $domain -ns $rhost --disable-autogc -c All --zip # Legacy bloodhound
+bloodhound-python -u $user -p '$password' -d $domain -c All --zip #resolver.conf  Legacy bloodhound
+bloodhound-python -u $user -p '$password' -d $domain -dc $computer_name.$domain --disable-autogc -c All --zip # Legacy bloodhound
 
 ### Port 80 (HTTP)
 hydra -L /seclists/Usernames/Names/names.txt -p $password -u -f $rhost -s 43649 http-get /
