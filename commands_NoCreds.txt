@@ -1,8 +1,6 @@
 ### Port 445 (SMB)
 smbclient -N -L //$rhost/
 smbclient -N //$rhost/IPC$
-nmap -p445 --script smb-protocols $rhost | grep "3.11"
-nmap --script smb-vuln* -p139,445 -Pn $rhost
 enum4linux-ng -A $rhost
 impacket-lookupsid anonymous@$rhost
 impacket-lookupsid '$domain/anonymous'@$domain -no-pass
@@ -10,6 +8,8 @@ nxc smb $rhost -u 'anonymous' -p '' --rid-brute
 nxc smb $rhost -u "" -p "" --users
 nxc smb $rhost -u "" -p "" --pass-pol
 qterminal -e "zsh -c 'hydra -I -l \$user -P ~/rockyou.txt -e nsr -t 1 \$rhost smb; exec zsh'" & disown
+nmap -p445 --script smb-protocols $rhost | grep "3.11"
+nmap --script smb-vuln* -p139,445 -Pn $rhost
 
 ### Port 21 (FTP)
 curl ftp://$rhost/ --user "anonymous:anonymous"
@@ -39,11 +39,7 @@ echo -e "getusername\nenumprivs\nnetshareenum\nnetsessenum\nsrvinfo\nquerydominf
 ### Port 389 (LDAP)
 jxplorer #389
 nmap -p389 --script "ldap* and not brute" -n -Pn $rhost
-Edit> ldapsearch -x -H ldap://$rhost -b "" -s base "(objectclass=*)"
-Edit> ldapsearch -x -H "ldap://$rhost" -b "CN=$computer_name,DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description
-Edit> ldapsearch -x -H "ldap://$rhost" -b "DC=$shortdomain,DC=c0mmm" "objectclass=*" | grep description
-Edit> ldapsearch -x -H ldap://$rhost -b "dc=$shortdomain,dc=com" "(objectClass=user)"
-Edit> ldapsearch -x -H ldap://$rhost -b "dc=$shortdomain,dc=com" "(objectClass=group)"
+Edit> ldapsearch commands from https://tools.blindspotpentesting.com/Index_No-Creds.html
 Edit> New tab plz nmap -p389 --script ldap-brute --script-args ldap.base='"cn=users,dc=$shortdomain,dc=c0mmm"' -Pn $rhost
 
 ### Port 636 (LDAPS)
