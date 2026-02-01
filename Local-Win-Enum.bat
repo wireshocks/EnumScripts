@@ -38,6 +38,11 @@ echo %YELLOW%[Command]%RESET% %GREEN%whoami /user%RESET%
 whoami /user & whoami /priv
 echo.
 
+echo %YELLOW%[Command]%RESET% %GREEN%net user "%USERNAME%"%RESET%
+echo %YELLOW% Current user properties. check for logon scripts etc%RESET%
+net user "%USERNAME%"
+echo.
+
 echo %YELLOW%[Command]%RESET% %GREEN%whoami /groups%RESET%
 echo %YELLOW% Current user belongs to the below local groups%RESET%
 whoami /groups
@@ -228,6 +233,7 @@ echo.
 echo %BOLD%%GREEN%[*] Enumeration Complete%RESET%
 <nul set /p "=%ESC%[?25h"
 endlocal
+
 
 
 
