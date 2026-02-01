@@ -197,7 +197,7 @@ Write-Host "${YELLOW}[Command]${RESET} ${GREEN}schtasks /query /fo LIST${RESET}"
 schtasks /query /fo LIST 2>$null | findstr /i /v "Microsoft"
 Write-Host ""
 
-Write-Host "${YELLOW}[Command]${RESET} ${GREEN}schtasks /query /fo CSV | ConvertFrom-Csv | Where-Object {$_.TaskPath -notlike "*Microsoft*"} | Select-Object TaskName,TaskPath,Status | Format-Table"${RESET}"
+Write-Host "${YELLOW}[Command]${RESET} ${GREEN}schtasks /query /fo CSV | ConvertFrom-Csv | Where-Object {$_.TaskPath -notlike "*Microsoft*"} | Select-Object TaskName,TaskPath,Status | Format-Table${RESET}"
 schtasks /query /fo CSV | ConvertFrom-Csv | Where-Object {$_.TaskPath -notlike "*Microsoft*"} | Select-Object TaskName,TaskPath,Status | Format-Table
 Write-Host ""
 
