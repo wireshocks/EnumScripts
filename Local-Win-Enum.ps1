@@ -50,6 +50,11 @@ whoami /user
 whoami /priv
 Write-Host ""
 
+Write-Host "${YELLOW}[Command]${RESET} ${GREEN}net user $env:USERNAME${RESET}"
+Write-Host "${YELLOW}Current user Properties. Check logon scripts etc${RESET}"
+net user $env:USERNAME
+Write-Host ""
+
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}whoami /groups${RESET}"
 Write-Host "${YELLOW}Current user belongs to the below local groups${RESET}"
 whoami /groups
