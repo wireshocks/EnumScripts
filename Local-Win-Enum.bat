@@ -43,6 +43,10 @@ echo %YELLOW% Current user belongs to the below local groups%RESET%
 whoami /groups
 echo.
 
+echo %YELLOW%[Command]%RESET% %GREEN%whoami /groups | findstr -i share"%RESET%
+whoami /groups | findstr -i share
+echo.
+
 echo %YELLOW%[Command]%RESET% %GREEN%query user%RESET%
 query user
 echo.
@@ -224,5 +228,6 @@ echo.
 echo %BOLD%%GREEN%[*] Enumeration Complete%RESET%
 <nul set /p "=%ESC%[?25h"
 endlocal
+
 
 
