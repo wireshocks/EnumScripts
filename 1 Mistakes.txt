@@ -1,0 +1,64 @@
+Lesson Learned. OSCP is all about enumeration, not exploitation
+Organise all your findings. e.g creds etc
+
+Note: for each ports etc visit this https://wadcoms.github.io/
+Note: tools containing domain as oscp/bob must also try oscp.lab/bob as well
+
+0. if accessed ftp or smb, must ls -lah to see hidden files as well. in powershell always use dir -hidden and in cmd.exe dir /ah on user or C:\ drive etc
+1. I didn't run udp scan on the target
+2. I didn't run smb vuln scripts
+3. might have missed some ports due to nmap -T4 aggresive scan? or try revert the machine
+4.
+ - A login page was giving error (No such User!) when inputing a username, this is used for user enumeration
+ - I could use this command ffuf -w usernames.txt -u http://$rhost/cbs/Logon.do -d "systemLoginName=FUZZ&systemPassword=wrong" -fr "No such user". while a website was hosted on port 8443 where i could gather usernames. i missed it
+  - or I could try to locate the forget password page such as /cbs/GetForgotPwd.do
+  - or I could find hardcoded creds in /cbs/include/cbs.js or /WEB-INF/web.xml file
+  - or I could try to google cbs admin portal
+  - Append ?debug=true to URL http://$rhost/cbs/logon.jsp?debug=true
+
+5. don't rely on hydra for password brute forcing or spray. use crackmapexec instead
+6. if you can't access certain port, can you add yourself into other domain group?
+7. if path traversal found, try to locate config files of the applications that might have creds.
+8. add or remove firewall rules if you are in
+===
+now
+exiftool program.png | grep -i "comment\|author"
+=========
+AD mistakes
+breach scenario
+try to reuse the provided password for administrator
+runas /user:WS26\Administrator "cmd.exe" and enter r.andrews password
+the provided password is not just to login to ms01, try to it on ms02 and dc01 on founded ports such as mssql etc
+try net view \\dc01 /all from ms01 and ms02 and net view \\ms02 /all from ms01
+
+try to read reg
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" 2>nul | findstr /i "DefaultUserName DefaultPassword"
+
+findstr /SIM /C:"pass" *.ini *.cfg *.config *.xml
+findstr /s /i "password admin" C:\*.txt C:\*.xml C:\*.config C:\*.ini 2>nul
+findstr /s /i "password" "%USERPROFILE%\AppData\*.txt" 2>nul
+or use https://juggernaut-sec.com/tag/incognito-exe/
+
+Find services running as admin that you can control:
+sc query state= all | findstr "SERVICE_NAME"
+sc qc <SERVICE_NAME> | findstr "BINARY_PATH_NAME SERVICE_START_NAME"
+dir /s C:\$Recycle.Bin 2>nul
+dir /s /b *pass*.txt *cred*.xml *unattend*.xml *web*.config 2>nul
+dir /s /b %SystemDrive%\vnc.ini *.kdbx *.config 2>nul
+
+icacls "C:\Program Files (x86)\" and Look for (W), (M), or (F) next to BUILTIN\Users. If present, proceed.
+===
+other mistakes
+-if you found watch.streamio.htb in nmap etc result, try to open steamio.htb as well because watch.streamio.htb will be diffrent domain and try ffuf on both
+-if you found just a word or excel doc on target and nothing else, that might have vba script and potentially credentials inside. unzip and use strings tool to find out
+-if got credentials, you have to options. a) get interactive shell then privesc, or b) this may have permission over other user such as changing pwd or accessing share drives etc that can lead you get interactive shell, then privesc
+-when you found bunch of usernames, try to narrow down your target such as targeting IT employees or mgr.
+-impacket-??? tools flag are updated, becarefull when following bloodhound abuse tips, so if you get argument error, always check the flag. example. impacket-owneredit had flag -owner which is now replaced with flag -new-onwer.
+--following bloodhound tips? always follow as the group follows.
+
+-in assumed breach, try the credential to login on open ports such as winrm, smbshare, smbexec login, mssql login etc etc. or try to dump AD data with bloodhound
+-other stupid thing is that when finding hashcat module -m, please focus the diffrence of fucking 'krb5tgs' and 'krb5asrep'. 
+
+
+
+
