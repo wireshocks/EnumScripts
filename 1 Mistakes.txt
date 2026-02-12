@@ -62,6 +62,9 @@ other mistakes
 
 -in assumed breach, try the credential to login on open ports such as winrm, smbshare, smbexec login, mssql login etc etc. or try to dump AD data with bloodhound
 -other stupid thing is that when finding hashcat module -m, please focus the diffrence of fucking 'krb5tgs' and 'krb5asrep'. 
+--------
+if targeting a website, always upload shells in the upload directory because it normally has write options to everyone.
+
 
 
 
