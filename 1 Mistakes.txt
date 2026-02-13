@@ -64,6 +64,7 @@ other mistakes
 -other stupid thing is that when finding hashcat module -m, please focus the diffrence of fucking 'krb5tgs' and 'krb5asrep'. 
 --------
 if targeting a website, always upload shells in the upload directory because it normally has write options to everyone.
+if obtained shell as www user and landed on diffrent folder, always check the /var/www/and-this-directory
 
 
 
