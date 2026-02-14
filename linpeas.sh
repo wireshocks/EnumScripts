@@ -8520,7 +8520,6 @@ printf "%s\n" "$suids_files" | while read s; do
     fi
   fi
 done;
-fi
 
 
 echo ""
