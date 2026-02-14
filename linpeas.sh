@@ -8434,7 +8434,7 @@ if [ "$WAIT" ]; then echo "Press enter to continue"; read "asd"; fi
 
 if echo $CHECKS | grep -q interesting_perms_files; then
 print_title "Files with Interesting Permissions"
-print_2title "SUID - Check easy privesc, exploits and write perms"
+print_2title "SUID - Check easy privesc, exploits and write perms [Excluding root:root]"
 print_info "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#sudo-and-suid"
 print_info "Must look for find, vim, nano, cp or bash etc. also check for custom binaries or scripts. then check GTFOBins"
 print_info "Also check for Unknown SUID binary as well as CVEs in brackets"
@@ -8447,7 +8447,12 @@ fi
 suids_files=$(find $ROOT_FOLDER -perm -4000 -type f ! -path "/dev/*" 2>/dev/null)
 printf "%s\n" "$suids_files" | while read s; do
   [ -z "$s" ] && continue
-  s=$(ls -lahtr "$s")
+  # Added grep -v "root root" here to exclude those results from the output
+  s=$(ls -lahtr "$s" | grep -v "root root")
+  
+  # If the string is empty after filtering root root, skip to the next file
+  [ -z "$s" ] && continue
+
   #If starts like "total 332K" then no SUID bin was found and xargs just executed "ls" in the current folder
   if echo "$s" | grep -qE "^total"; then break; fi
   sname="$(echo $s | awk '{print $9}')"
@@ -8517,6 +8522,8 @@ printf "%s\n" "$suids_files" | while read s; do
     fi
   fi
 done;
+fi
+
 echo ""
 
 print_2title "SGID"
@@ -8905,6 +8912,7 @@ if ! [ "$IAMROOT" ]; then
   
   (find $ROOT_FOLDER -type f -user root ! -perm -o=r ! -path "/proc/*" 2>/dev/null | grep -v "\.journal" | while read f; do if [ -r "$f" ]; then ls -l "$f" 2>/dev/null | sed -${E} "s,/.*,${SED_RED},"; fi; done) || echo_not_found
   echo ""
+  echo ""
 fi
 
 if ! [ "$IAMROOT" ]; then
@@ -8920,6 +8928,7 @@ if ! [ "$IAMROOT" ]; then
       echo "$l" | sed -${E} "s,$writeB,${SED_RED},"
     fi
   done
+  echo ""
   echo ""
 fi
 
@@ -9165,21 +9174,26 @@ fi
 
 if ! [ "$SEARCH_IN_FOLDER" ]; then
   if [ "$PSTORAGE_BACKUPS" ] || [ "$DEBUG" ]; then
-    print_2title "Backup folders"
-	print_info "Check if you can read backup files. also check if you can read shadow.bak passwd.bak etc"
-    printf "%s\n" "$PSTORAGE_BACKUPS" | while read b ; do
-      ls -ld "$b" 2> /dev/null | sed -${E} "s,backups|backup,${SED_RED},g";
-      ls -l "$b" 2>/dev/null && echo ""
-    done
+print_2title "Backup folders [Excluding root:root]"
+print_info "Check if you can read backup files. also check if you can read shadow.bak passwd.bak etc"
+printf "%s\n" "$PSTORAGE_BACKUPS" | while read b ; do
+  # Filter folder permissions
+  ls -ld "$b" 2> /dev/null | grep -v "root root" | sed -${E} "s,backups|backup,${SED_RED},g";
+  
+  # Filter folder contents
+  ls -l "$b" 2>/dev/null | grep -v "root root" && echo ""
+done
+
     echo ""
   fi
 fi
 
-print_2title "Backup files (limited 100)"
+print_2title "Backup files (limited 100) [Excluding root:root]"
 backs=$(find $ROOT_FOLDER -type f \( -name "*backup*" -o -name "*\.bak" -o -name "*\.bak\.*" -o -name "*\.bck" -o -name "*\.bck\.*" -o -name "*\.bk" -o -name "*\.bk\.*" -o -name "*\.old" -o -name "*\.old\.*" \) -not -path "/proc/*" 2>/dev/null)
 printf "%s\n" "$backs" | head -n 100 | while read b ; do
   if [ -r "$b" ]; then
-    ls -l "$b" | grep -Ev "$notBackup" | grep -Ev "$notExtensions" | sed -${E} "s,backup|bck|\.bak|\.old,${SED_RED},g";
+    # Added grep -v "root root" to the filter chain
+    ls -l "$b" | grep -Ev "$notBackup" | grep -Ev "$notExtensions" | grep -v "root root" | sed -${E} "s,backup|bck|\.bak|\.old,${SED_RED},g";
   fi;
 done
 echo ""
