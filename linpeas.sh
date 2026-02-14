@@ -8432,12 +8432,11 @@ echo ''
 echo ''
 if [ "$WAIT" ]; then echo "Press enter to continue"; read "asd"; fi
 
+
 if echo $CHECKS | grep -q interesting_perms_files; then
 print_title "Files with Interesting Permissions"
-print_2title "SUID - Check easy privesc, exploits and write perms [Excluding root:root]"
+print_2title "SUID - Check easy privesc, exploits and write perms"
 print_info "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#sudo-and-suid"
-print_info "Must look for find, vim, nano, cp or bash etc. also check for custom binaries or scripts. then check GTFOBins"
-print_info "Also check for Unknown SUID binary as well as CVEs in brackets"
 if ! [ "$STRINGS" ]; then
   echo_not_found "strings"
 fi
@@ -8447,12 +8446,11 @@ fi
 suids_files=$(find $ROOT_FOLDER -perm -4000 -type f ! -path "/dev/*" 2>/dev/null)
 printf "%s\n" "$suids_files" | while read s; do
   [ -z "$s" ] && continue
-  # Added grep -v "root root" here to exclude those results from the output
-  s=$(ls -lahtr "$s" | grep -v "root root")
-  
-  # If the string is empty after filtering root root, skip to the next file
+  # Filtered "root root" from the ls output
+  s=$(ls -lahtr "$s" 2>/dev/null | grep -v "root root")
+  # If s is now empty (meaning it was root:root), skip to next file
   [ -z "$s" ] && continue
-
+  
   #If starts like "total 332K" then no SUID bin was found and xargs just executed "ls" in the current folder
   if echo "$s" | grep -qE "^total"; then break; fi
   sname="$(echo $s | awk '{print $9}')"
@@ -8523,6 +8521,7 @@ printf "%s\n" "$suids_files" | while read s; do
   fi
 done;
 fi
+
 
 echo ""
 
