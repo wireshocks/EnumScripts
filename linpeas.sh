@@ -8437,6 +8437,9 @@ if echo $CHECKS | grep -q interesting_perms_files; then
 print_title "Files with Interesting Permissions"
 print_2title "SUID - Check easy privesc, exploits and write perms"
 print_info "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#sudo-and-suid"
+print_info "Must look for find, vim, nano, cp or bash etc'
+print_info "Also check for custom binaries or scripts. then check GTFOBins"
+print_info "Also check for Unknown SUID binary as well as CVEs in brackets"
 if ! [ "$STRINGS" ]; then
   echo_not_found "strings"
 fi
