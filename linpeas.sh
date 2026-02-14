@@ -3465,7 +3465,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
     printf ${BLUE}"[i]$GREEN Looks like ps is not finding processes, going to read from /proc/ and not going to monitor 1min of processes\n"$NC
   fi
   print_info "Check weird & unexpected processes run by root: https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#processes"
-  print_info " Check for services running as root that might have known vuln or you might have write permission"
+  print_info " Check for services running as root that might have known vuln or you might have write permission +++++++"
   if [ -f "/etc/fstab" ] && cat /etc/fstab | grep -q "hidepid=2"; then
     echo "Looks like /etc/fstab has hidepid=2, so ps will not show processes of other users"
   fi
@@ -3837,6 +3837,7 @@ if ! [ "$SEARCH_IN_FOLDER" ] && ! [ "$NOUSEPS" ]; then
     fi
   done
   echo ""
+  echo ""
 fi
 
 if ! [ "$SEARCH_IN_FOLDER" ]; then
@@ -3879,6 +3880,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
       done
     done
     echo ""
+	echo ""
   fi
 fi
 
@@ -8899,7 +8901,7 @@ fi
 
 if ! [ "$IAMROOT" ]; then
   print_2title "Readable files belonging to root and readable by me but not world readable"
-  print_info "You can read or execute these files or binaries"
+  print_info "You can read or execute these files or binaries ++++++++++++"
   
   (find $ROOT_FOLDER -type f -user root ! -perm -o=r ! -path "/proc/*" 2>/dev/null | grep -v "\.journal" | while read f; do if [ -r "$f" ]; then ls -l "$f" 2>/dev/null | sed -${E} "s,/.*,${SED_RED},"; fi; done) || echo_not_found
   echo ""
