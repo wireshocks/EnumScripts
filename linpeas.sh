@@ -3465,6 +3465,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
     printf ${BLUE}"[i]$GREEN Looks like ps is not finding processes, going to read from /proc/ and not going to monitor 1min of processes\n"$NC
   fi
   print_info "Check weird & unexpected processes run by root: https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#processes"
+  print_info " Check for services running as root that might have known vuln or you might have write permission"
   if [ -f "/etc/fstab" ] && cat /etc/fstab | grep -q "hidepid=2"; then
     echo "Looks like /etc/fstab has hidepid=2, so ps will not show processes of other users"
   fi
@@ -3796,6 +3797,11 @@ fi
 if ! [ "$SEARCH_IN_FOLDER" ] && ! [ "$NOUSEPS" ]; then
   print_2title "Processes whose PPID belongs to a different user (not root)"
   print_info "You will know if a user can somehow spawn processes as a different user"
+  print_info "Example: Proc 11042 with ppid 1922 is run by user root but the ppid user is www-data"
+  print_info "Run ps -fp 11042 to see exactly what command is running as root"
+  print_info "Run ps -fp 1922 to see what www-data process spawned it"
+  print_info "Check sudo -l for www-data to see if it can run the identified command as root"
+
   # Function to get user by PID using /proc
   get_user_by_pid() {
     if [ -r "/proc/$1/status" ]; then
@@ -8428,6 +8434,8 @@ if echo $CHECKS | grep -q interesting_perms_files; then
 print_title "Files with Interesting Permissions"
 print_2title "SUID - Check easy privesc, exploits and write perms"
 print_info "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#sudo-and-suid"
+print_info "Must look for find, vim, nano, cp or bash etc. also check for custom binaries or scripts. then check GTFOBins"
+print_info "Also check for Unknown SUID binary as well as CVEs in brackets"
 if ! [ "$STRINGS" ]; then
   echo_not_found "strings"
 fi
@@ -8891,6 +8899,8 @@ fi
 
 if ! [ "$IAMROOT" ]; then
   print_2title "Readable files belonging to root and readable by me but not world readable"
+  print_info "You can read or execute these files or binaries"
+  
   (find $ROOT_FOLDER -type f -user root ! -perm -o=r ! -path "/proc/*" 2>/dev/null | grep -v "\.journal" | while read f; do if [ -r "$f" ]; then ls -l "$f" 2>/dev/null | sed -${E} "s,/.*,${SED_RED},"; fi; done) || echo_not_found
   echo ""
 fi
@@ -9154,6 +9164,7 @@ fi
 if ! [ "$SEARCH_IN_FOLDER" ]; then
   if [ "$PSTORAGE_BACKUPS" ] || [ "$DEBUG" ]; then
     print_2title "Backup folders"
+	print_info "Check if you can read backup files. also check if you can read shadow.bak passwd.bak etc"
     printf "%s\n" "$PSTORAGE_BACKUPS" | while read b ; do
       ls -ld "$b" 2> /dev/null | sed -${E} "s,backups|backup,${SED_RED},g";
       ls -l "$b" 2>/dev/null && echo ""
