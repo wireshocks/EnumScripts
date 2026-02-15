@@ -66,6 +66,7 @@ other mistakes
 - if targeting a website, always upload shells in the upload directory because it normally has write options to everyone.
 - if obtained shell as www user and landed on diffrent folder, always check the /var/www/and-this-directory
 - when you have interactive shell and what the tab completion, try e.g mys[tab][tab][tab] and it will show all the suggestion.
+- searchsploit: for example target has OpenSMTPD 2.0.0 and exploitdb says OpenSMTPD v <6.6.1 is vulnerable. but searching [searchsploit OpenSMTPD 2.0.0] might show few exploit, you must also searchsploit OpenSMTPD or "OpenSMTPD 6" because it will show all exploits
 
 
 
