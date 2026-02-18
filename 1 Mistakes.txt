@@ -68,6 +68,9 @@ other mistakes
 - when you have interactive shell and what the tab completion, try e.g mys[tab][tab][tab] and it will show all the suggestion.
 - searchsploit: for example target has OpenSMTPD 2.0.0 and exploitdb says OpenSMTPD v <6.6.1 is vulnerable. but searching [searchsploit OpenSMTPD 2.0.0] might show few exploit, you must also searchsploit OpenSMTPD or "OpenSMTPD 6" because it will show all exploits
 -whenever you land in a webserver specially php, always find db.php, connect.php etc to find credentials inside the file
+- these two exploits "arbitrary_file_upload.py" and "xyz_RCE.py" do the same job. rce is rce a bit easy but arbitrary_file_upload will do the same just need to create malicious file
+
+
 
 
 
