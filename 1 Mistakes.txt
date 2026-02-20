@@ -9,7 +9,7 @@ Note: for each ports etc visit this https://wadcoms.github.io/
 Note: tools containing domain as oscp/bob must also try oscp.lab/bob as well
 
 0. if accessed ftp or smb, must ls -lah to see hidden files as well. in powershell always use dir -hidden and in cmd.exe dir /ah on user or C:\ drive etc
-1. I didn't run udp scan on the target
+1. I didn't run udp scan on the target. so i always run after the normal nmap is finished. sudo nmap -Pn -n $rhost -sU --top-ports=150
 2. I didn't run smb vuln scripts
 3. might have missed some ports due to nmap -T4 aggresive scan? or try revert the machine
 4.
@@ -69,6 +69,7 @@ other mistakes
 - searchsploit: for example target has OpenSMTPD 2.0.0 and exploitdb says OpenSMTPD v <6.6.1 is vulnerable. but searching [searchsploit OpenSMTPD 2.0.0] might show few exploit, you must also searchsploit OpenSMTPD or "OpenSMTPD 6" because it will show all exploits
 -whenever you land in a webserver specially php, always find db.php, connect.php etc to find credentials inside the file
 - these two exploits "arbitrary_file_upload.py" and "xyz_RCE.py" do the same job. rce is rce a bit easy but arbitrary_file_upload will do the same just need to create malicious file
+- did you try to find default creds on the google?
 
 
 
