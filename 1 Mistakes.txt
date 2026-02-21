@@ -1,4 +1,4 @@
-Remember Remeber Remembe! If you get initial foodhold on a machine as www-data or xyz, and there is another users that has the local.txt, then you must get a shell on that user to read the local.txt. it is not allowed to wait until you get root and read local.txt
+Remember Remeber Remembe! If you get initial foodhold on a machine as www-data or xyz, and there is another users that has the local.txt, then you must get a shell on behalf of that user to read the local.txt. it is not allowed to wait until you get root and read local.txt
 remember: if the rhost is pinglable but not working as intended to work. always try to restart the vpn
 most of the time, need to reconnect the vpn
 -----------
@@ -9,7 +9,7 @@ Note: for each ports etc visit this https://wadcoms.github.io/
 Note: tools containing domain as oscp/bob must also try oscp.lab/bob as well
 
 0. if accessed ftp or smb, must ls -lah to see hidden files as well. in powershell always use dir -hidden and in cmd.exe dir /ah on user or C:\ drive etc
-1. I didn't run udp scan on the target. so i always run after the normal nmap is finished. sudo nmap -Pn -n $rhost -sU --top-ports=150
+1. I didn't run udp scan on the target. so always run after the normal nmap is finished. sudo nmap -Pn -n $rhost -sU --top-ports=150
 2. I didn't run smb vuln scripts
 3. might have missed some ports due to nmap -T4 aggresive scan? or try revert the machine
 4.
@@ -19,6 +19,7 @@ Note: tools containing domain as oscp/bob must also try oscp.lab/bob as well
   - or I could find hardcoded creds in /cbs/include/cbs.js or /WEB-INF/web.xml file
   - or I could try to google cbs admin portal
   - Append ?debug=true to URL http://$rhost/cbs/logon.jsp?debug=true
+  - i din't search for public exploit
 
 5. don't rely on hydra for password brute forcing or spray. use crackmapexec instead
 6. if you can't access certain port, can you add yourself into other domain group?
@@ -70,6 +71,7 @@ other mistakes
 -whenever you land in a webserver specially php, always find db.php, connect.php etc to find credentials inside the file
 - these two exploits "arbitrary_file_upload.py" and "xyz_RCE.py" do the same job. rce is rce a bit easy but arbitrary_file_upload will do the same just need to create malicious file
 - did you try to find default creds on the google?
+
 
 
 
