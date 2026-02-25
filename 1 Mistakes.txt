@@ -71,6 +71,8 @@ other mistakes
 -whenever you land in a webserver specially php, always find db.php, connect.php etc to find credentials inside the file
 - these two exploits "arbitrary_file_upload.py" and "xyz_RCE.py" do the same job. rce is rce a bit easy but arbitrary_file_upload will do the same just need to create malicious file
 - did you try to find default creds on the google?
+- when u get smb access with write access, there is ldapsearch usernames. seat back think which one is easier. if smb share can accept our malicous uri or macro. that will be easier then getting usernames only with ldap search which will require brute forceing later. so go with client side attack.
+
 
 
 
