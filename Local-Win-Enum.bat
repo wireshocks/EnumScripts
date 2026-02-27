@@ -162,7 +162,11 @@ echo %YELLOW%[Command]%RESET% %GREEN%powershell -c "Get-ChildItem -Path 'Registr
 powershell -c "Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE' | ft Name"
 echo.
 
-echo %BOLD%%BLUE%**** Program Files Enumeration (x86) *********************************************************************%RESET%
+echo %BOLD%%BLUE%**** Program Files Enumeration *********************************************************************%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\"%RESET%
+dir "C:\" 2>nul | findstr /V /I /C:"Windows" /C:"Users" /C:"PerfLogs" /C:"Program Files" /C:"Program Files (x86)"
+echo.
+
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\Program Files (x86)"%RESET%
 dir "C:\Program Files (x86)" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows"
 echo.
@@ -233,6 +237,7 @@ echo.
 echo %BOLD%%GREEN%[*] Enumeration Complete%RESET%
 <nul set /p "=%ESC%[?25h"
 endlocal
+
 
 
 
