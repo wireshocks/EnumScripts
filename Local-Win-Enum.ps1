@@ -179,7 +179,13 @@ Write-Host ""
 # ===============================
 # Program Files Enumeration
 # ===============================
-Write-Host "${BOLD}${BLUE}**** Program Files Enumeration (x86) ****${RESET}"
+Write-Host "${BOLD}${BLUE}**** Program Files Enumeration ****${RESET}"
+
+Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\`"${RESET}"
+Get-ChildItem "C:\" -ErrorAction SilentlyContinue |
+Where-Object { $_.Name -notin @("Program Files","Program Files (x86)","Users") } |
+Format-Table Name
+Write-Host ""
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\Program Files (x86)`"${RESET}"
 Get-ChildItem "C:\Program Files (x86)" -ErrorAction SilentlyContinue |
