@@ -183,7 +183,7 @@ Write-Host "${BOLD}${BLUE}**** Program Files Enumeration ****${RESET}"
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\`"${RESET}"
 Get-ChildItem "C:\" -ErrorAction SilentlyContinue |
-Where-Object { $_.Name -notin @("Program Files","Program Files (x86)","Users") } |
+Where-Object { $_.Name -notin @("Program Files","Program Files (x86)","PerfLogs","Windows","Users") } |
 Format-Table Name
 Write-Host ""
 
