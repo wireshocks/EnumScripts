@@ -72,6 +72,9 @@ other mistakes
 - these two exploits "arbitrary_file_upload.py" and "xyz_RCE.py" do the same job. rce is rce a bit easy but arbitrary_file_upload will do the same just need to create malicious file
 - did you try to find default creds on the google?
 - when u get smb access with write access, there is ldapsearch usernames. seat back think which one is easier. if smb share can accept our malicous uri or macro. that will be easier then getting usernames only with ldap search which will require brute forceing later. so go with client side attack.
+-if you found a file xyz.ps1 and the content says something exporting etc, then try to execute the ps1 file. it is not just for viewing the ps1 file to find creds. sometime just execute it so it can produce or output some other files
+that may have creds.
+
 
 
 
