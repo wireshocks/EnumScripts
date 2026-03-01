@@ -189,13 +189,13 @@ Write-Host ""
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\Program Files (x86)`"${RESET}"
 Get-ChildItem "C:\Program Files (x86)" -Force -ErrorAction SilentlyContinue |
-Where-Object { $_.Name -notmatch "Microsoft|Windows" } |
+Where-Object { $_.Name -notmatch "Microsoft|Windows|Common Files|Internet Explorer" } |
 Format-Table Name
 Write-Host ""
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\Program Files`"${RESET}"
 Get-ChildItem "C:\Program Files" -Force -ErrorAction SilentlyContinue |
-Where-Object { $_.Name -notmatch "Microsoft|Windows" } |
+Where-Object { $_.Name -notmatch "Microsoft|Windows|Common Files|Internet Explorer|ModifiableWindowsApps||RSAT" } |
 Format-Table Name
 Write-Host ""
 
