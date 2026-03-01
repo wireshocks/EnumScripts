@@ -164,7 +164,7 @@ echo.
 
 echo %BOLD%%BLUE%**** Program Files Enumeration *********************************************************************%RESET%
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\"%RESET%
-dir "C:\" 2>nul | findstr /V /I /C:"Windows" /C:"Users" /C:"PerfLogs" /C:"Program Files" /C:"Program Files (x86)"
+dir "C:\" /ah 2>nul | findstr /V /I /C:"Windows" /C:"Users" /C:"PerfLogs" /C:"Program Files" /C:"Program Files (x86)"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\Program Files (x86)"%RESET%
@@ -237,6 +237,7 @@ echo.
 echo %BOLD%%GREEN%[*] Enumeration Complete%RESET%
 <nul set /p "=%ESC%[?25h"
 endlocal
+
 
 
 
