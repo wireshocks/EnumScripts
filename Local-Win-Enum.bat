@@ -261,6 +261,7 @@ echo.
 
 echo %BOLD%%BLUE%**** AlwaysInstallElevated Checks ***********************************************************************%RESET%
 echo %YELLOW%[Command]%RESET% %GREEN%reg query HKCU AlwaysInstallElevated%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%If found 0x1 then get shell with .msi payload%RESET%
 reg query "HKCU\Software\Policies\Microsoft\Windows\Installer" 2>nul | findstr /v /i "ERROR"
 reg query "HKCU\Software\Policies\Microsoft\Windows\Installer" /v AlwaysInstallElevated 2>nul | findstr /v /i "ERROR"
 echo.
