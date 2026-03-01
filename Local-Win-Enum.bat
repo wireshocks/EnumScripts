@@ -1,26 +1,28 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Color definitions
-set "RED=[91m"
-set "GREEN=[92m"
-set "YELLOW=[93m"
-set "BLUE=[94m"
-set "MAGENTA=[95m"
-set "CYAN=[96m"
-set "WHITE=[97m"
-set "RESET=[0m"
-set "BOLD=[1m"
-
+:: Get ESC character for ANSI colors
 for /f %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
+
+:: Color definitions (with ESC prefix - fixed)
+set "RED=%ESC%[91m"
+set "GREEN=%ESC%[92m"
+set "YELLOW=%ESC%[93m"
+set "BLUE=%ESC%[94m"
+set "MAGENTA=%ESC%[95m"
+set "CYAN=%ESC%[96m"
+set "WHITE=%ESC%[97m"
+set "RESET=%ESC%[0m"
+set "BOLD=%ESC%[1m"
+
+:: Hide cursor
 <nul set /p "=%ESC%[?25l"
 
 echo %BOLD%%GREEN% ===Local Enumeration Script===
 echo       Author: Muharram Ali
 echo       Email: ali.oscp@proton.me
-echo       Version: 2025.1
+echo       Version: 2025.2
 echo.
-
 echo [*] Starting System Enumeration%RESET%
 echo.
 
@@ -31,6 +33,11 @@ echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%hostname%RESET%
 hostname
+echo.
+
+echo %YELLOW%[Command]%RESET% %GREEN%net accounts%RESET%
+echo %YELLOW% Password policy and account lockout info%RESET%
+net accounts
 echo.
 
 echo %BOLD%%BLUE%**** Current User Information *********************************************************************************%RESET%
@@ -48,8 +55,8 @@ echo %YELLOW% Current user belongs to the below local groups%RESET%
 whoami /groups
 echo.
 
-echo %YELLOW%[Command]%RESET% %GREEN%whoami /groups | findstr -i share"%RESET%
-whoami /groups | findstr -i share
+echo %YELLOW%[Command]%RESET% %GREEN%whoami /groups | findstr /i "share"%RESET%
+whoami /groups | findstr /i "share"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%query user%RESET%
@@ -106,6 +113,14 @@ echo %YELLOW%[Command]%RESET% %GREEN%Checking SeRestorePrivilege%RESET%
 whoami /priv | findstr "SeRestorePrivilege"
 echo.
 
+echo %YELLOW%[Command]%RESET% %GREEN%Checking SeBackupPrivilege%RESET%
+whoami /priv | findstr "SeBackupPrivilege"
+echo.
+
+echo %YELLOW%[Command]%RESET% %GREEN%Checking SeLoadDriverPrivilege%RESET%
+whoami /priv | findstr "SeLoadDriverPrivilege"
+echo.
+
 echo %YELLOW%[Command]%RESET% %GREEN%Checking for local service account%RESET%
 whoami | findstr "local service"
 echo.
@@ -115,7 +130,7 @@ whoami | findstr "svc"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%Checking Backup Operators membership%RESET%
-whoami /groups | findstr "Backup Operators" 
+whoami /groups | findstr "Backup Operators"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%Checking DnsAdmins membership%RESET%
@@ -140,6 +155,10 @@ tasklist /v /fi "username eq system"
 echo.
 
 echo %BOLD%%BLUE%**** Local Network Shares ********************************************************************************%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%net share%RESET%
+net share
+echo.
+
 echo %YELLOW%[Command]%RESET% %GREEN%net view \\127.0.0.1%RESET%
 net view \\127.0.0.1 >nul 2>&1 && net view \\127.0.0.1
 echo.
@@ -153,26 +172,48 @@ echo %YELLOW%[Command]%RESET% %GREEN%netstat -ano | findstr ESTABLISHED%RESET%
 netstat -ano | findstr ESTABLISHED
 echo.
 
-echo %BOLD%%BLUE%**** Installed Software (Non-Microsoft) ******************************************************************%RESET%
-echo %YELLOW%[Command]%RESET% %GREEN%wmic product get name,version,vendor | findstr /v /i "Microsoft Corporation"%RESET%
-wmic product get name,version,vendor | findstr /v /i "Microsoft Corporation"
+echo %BOLD%%BLUE%**** Drives and Volumes **********************************************************************************%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%powershell -c "Get-PSDrive -PSProvider FileSystem | Select-Object Name,Root,Used,Free"%RESET%
+powershell -c "Get-PSDrive -PSProvider FileSystem | Select-Object Name,Root,Used,Free | Format-Table -AutoSize"
 echo.
 
-echo %YELLOW%[Command]%RESET% %GREEN%powershell -c "Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE' | ft Name"%RESET%
+echo %BOLD%%BLUE%**** Installed Software (Non-Microsoft) ******************************************************************%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%powershell Win32_Product - installed software%RESET%
+powershell -c "Get-WmiObject -Class Win32_Product | Select-Object Name,Version,Vendor | Format-Table -AutoSize" 2>nul
+echo.
+
+echo %YELLOW%[Command]%RESET% %GREEN%powershell - HKLM SOFTWARE registry%RESET%
 powershell -c "Get-ChildItem -Path 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE' | ft Name"
 echo.
 
-echo %BOLD%%BLUE%**** Program Files Enumeration *********************************************************************%RESET%
+echo %BOLD%%BLUE%**** Program Files Enumeration ***************************************************************************%RESET%
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\"%RESET%
-dir "C:\" /ah 2>nul | findstr /V /I /C:"Windows" /C:"Users" /C:"PerfLogs" /C:"Program Files" /C:"Program Files (x86)"
+dir "C:\" /a:d 2>nul | findstr /V /I /C:"Windows" /C:"Users" /C:"PerfLogs" /C:"Program Files" /C:"Volume" /C:"Directory" /C:"bytes"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\Program Files (x86)"%RESET%
-dir "C:\Program Files (x86)" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows" /C:"Common Files" /C:"Internet Explorer"
+dir "C:\Program Files (x86)" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows" /C:"Common Files" /C:"Internet Explorer" /C:"Directory of" /C:"Volume" /C:"bytes" /C:"<DIR>"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\Program Files"%RESET%
-dir "C:\Program Files" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows" /C:"Common Files" /C:"Internet Explorer" /C:"ModifiableWindowsApps" /C:"PowerShell" /C:"RSAT"
+dir "C:\Program Files" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows" /C:"Common Files" /C:"Internet Explorer" /C:"ModifiableWindowsApps" /C:"PowerShell" /C:"RSAT" /C:"Directory of" /C:"Volume" /C:"bytes" /C:"<DIR>"
+echo.
+
+echo %BOLD%%BLUE%**** Unquoted Service Paths ******************************************************************************%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%wmic service get name,displayname,pathname,startmode - unquoted paths%RESET%
+echo %YELLOW% Look for paths with spaces not wrapped in quotes - common privesc vector%RESET%
+wmic service get name,displayname,pathname,startmode 2>nul | findstr /i "auto" | findstr /i /v "c:\windows\\" | findstr /i /v """
+echo.
+
+echo %YELLOW%[Command]%RESET% %GREEN%powershell - service paths and start accounts%RESET%
+powershell -c "Get-WmiObject win32_service | Select-Object Name,StartName,PathName | Format-Table -AutoSize" 2>nul
+echo.
+
+echo %BOLD%%BLUE%**** Writable Directories in System PATH *****************************************************************%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%Checking PATH entries for write permissions - DLL hijacking vector%RESET%
+for %%p in (%PATH%) do (
+    icacls "%%p" 2>nul | findstr /i "(F) (M) (W) :\" >nul 2>&1 && echo [WRITABLE] %%p
+)
 echo.
 
 echo %BOLD%%BLUE%**** Scheduled Tasks (Non-Microsoft) ********************************************************************%RESET%
@@ -180,67 +221,75 @@ echo %YELLOW%[Command]%RESET% %GREEN%schtasks /query /fo LIST%RESET%
 schtasks /query /fo LIST 2>nul | findstr TaskName | findstr /v /i Microsoft
 echo.
 
-echo %YELLOW%[Command]%RESET% %GREEN%powershell -c "Get-ScheduledTask | where {$_.TaskPath -notlike '*Microsoft*'} | ft TaskName,TaskPath,State"%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%powershell Get-ScheduledTask non-Microsoft%RESET%
 powershell -c "Get-ScheduledTask | where {$_.TaskPath -notlike '*Microsoft*'} | ft TaskName,TaskPath,State"
 echo.
 
 echo %BOLD%%BLUE%**** Startup Programs *********************************************************************************%RESET%
-echo %YELLOW%[Command]%RESET% %GREEN%powershell -c "Get-CimInstance Win32_StartupCommand | select Name,Command,Location,User | fl"%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%powershell Win32_StartupCommand%RESET%
 powershell -c "Get-CimInstance Win32_StartupCommand | select Name,Command,Location,User | fl"
 echo.
 
+echo %YELLOW%[Command]%RESET% %GREEN%AutoRun Registry Keys%RESET%
+reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" 2>nul
+reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" 2>nul
+reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" 2>nul
+reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" 2>nul
+echo.
+
 echo %BOLD%%BLUE%**** Registry Enumeration ******************************************************************************%RESET%
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKCU\Software\SimonTatham\PuTTY\Sessions"%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%reg query PuTTY Sessions%RESET%
 reg query "HKCU\Software\SimonTatham\PuTTY\Sessions" 2>nul | findstr /v /i "ERROR"
 echo.
 
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKLM\SOFTWARE\RealVNC\WinVNC4" /v password%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%reg query RealVNC password%RESET%
 reg query "HKLM\SOFTWARE\RealVNC\WinVNC4" /v password 2>nul | findstr /v /i "ERROR"
 echo.
 
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%reg query WDigest UseLogonCredential%RESET%
 reg query "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential 2>nul | findstr /v /i "ERROR"
 echo.
 
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v CACHEDLOGONSCOUNT%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%reg query Winlogon CACHEDLOGONSCOUNT%RESET%
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v CACHEDLOGONSCOUNT 2>nul | findstr /v /i "ERROR"
 echo.
 
+echo %YELLOW%[Command]%RESET% %GREEN%reg query Winlogon AutoLogon credentials%RESET%
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUsername 2>nul | findstr /v /i "ERROR"
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword 2>nul | findstr /v /i "ERROR"
+echo.
+
 echo %BOLD%%BLUE%**** AlwaysInstallElevated Checks ***********************************************************************%RESET%
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKCU\Software\Policies\Microsoft\Windows\Installer"%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%reg query HKCU AlwaysInstallElevated%RESET%
 reg query "HKCU\Software\Policies\Microsoft\Windows\Installer" 2>nul | findstr /v /i "ERROR"
-echo.
-
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKLM\Software\Policies\Microsoft\Windows\Installer"%RESET%
-reg query "HKLM\Software\Policies\Microsoft\Windows\Installer" 2>nul | findstr /v /i "ERROR"
-echo.
-
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKLM\Software\Policies\Microsoft\Windows\Installer" /v AlwaysInstallElevated%RESET%
-reg query "HKLM\Software\Policies\Microsoft\Windows\Installer" /v AlwaysInstallElevated 2>nul | findstr /v /i "ERROR"
-echo.
-
-echo %YELLOW%[Command]%RESET% %GREEN%reg query "HKCU\Software\Policies\Microsoft\Windows\Installer" /v AlwaysInstallElevated%RESET%
 reg query "HKCU\Software\Policies\Microsoft\Windows\Installer" /v AlwaysInstallElevated 2>nul | findstr /v /i "ERROR"
 echo.
 
-echo %BOLD%%RED%+++++++++++Search Recyclebins +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%RESET%
-echo %YELLOW%[Command]%RESET% %GREEN%wmic useraccount get name,sid%RESET%
-echo  %YELLOW%And then dir C:\$Recycle.Bin\SID%RESET%
-wmic useraccount get name,sid
+echo %YELLOW%[Command]%RESET% %GREEN%reg query HKLM AlwaysInstallElevated%RESET%
+reg query "HKLM\Software\Policies\Microsoft\Windows\Installer" 2>nul | findstr /v /i "ERROR"
+reg query "HKLM\Software\Policies\Microsoft\Windows\Installer" /v AlwaysInstallElevated 2>nul | findstr /v /i "ERROR"
 echo.
 
-echo %BOLD%%RED%+++++++++++ Go Beyond +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%RESET%
-echo %BOLD%[!!]%RESET%%RED% Nothing Found!%RESET%
-echo %GREEN%[+]%RESET% Try to add reg key manually to make the system vulnerable to priv escalation. check gitbook 12.2
+echo %BOLD%%BLUE%**** Sensitive File Search ******************************************************************************%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%Searching for files with sensitive names in user profile%RESET%
+dir /s /b "%USERPROFILE%\*.txt" 2>nul | findstr /i "pass cred secret key token"
+dir /s /b "%USERPROFILE%\*.xml" 2>nul | findstr /i "pass cred secret key token"
+dir /s /b "%USERPROFILE%\*.ini" 2>nul | findstr /i "pass cred secret key token"
+dir /s /b "%USERPROFILE%\*.config" 2>nul | findstr /i "pass cred secret key token"
+echo.
+
+echo %YELLOW%[Command]%RESET% %GREEN%PowerShell command history%RESET%
+type "%APPDATA%\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt" 2>nul
+echo.
+
+echo %BOLD%%RED%+++++++++++Search Recyclebins +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%RESET%
+echo %YELLOW%[Command]%RESET% %GREEN%powershell - user accounts and SIDs%RESET%
+echo %YELLOW% And then check dir C:\$Recycle.Bin\SID%RESET%
+powershell -c "Get-WmiObject Win32_UserAccount | Select-Object Name,SID | Format-Table -AutoSize" 2>nul
 echo.
 
 echo %BOLD%%GREEN%[*] Enumeration Complete%RESET%
+
+:: Restore cursor
 <nul set /p "=%ESC%[?25h"
 endlocal
-
-
-
-
-
-
-
