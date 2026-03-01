@@ -247,6 +247,7 @@ foreach ($path in $regPaths) {
 
 # AlwaysInstallElevated checks
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}AlwaysInstallElevated checks${RESET}"
+Write-Host "${YELLOW}[Command]${RESET} ${GREEN}If found 0x1 then get shell with .msi payload${RESET}"
 Get-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Installer" -Name AlwaysInstallElevated -ErrorAction SilentlyContinue
 Get-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\Installer" -Name AlwaysInstallElevated -ErrorAction SilentlyContinue
 Write-Host ""
