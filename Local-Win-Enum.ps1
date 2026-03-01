@@ -182,19 +182,19 @@ Write-Host ""
 Write-Host "${BOLD}${BLUE}**** Program Files Enumeration ****${RESET}"
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\`"${RESET}"
-Get-ChildItem "C:\" -ErrorAction SilentlyContinue |
-Where-Object { $_.Name -notin @("Program Files","Program Files (x86)","PerfLogs","Windows","Users") } |
+Get-ChildItem "C:\" -Force -ErrorAction SilentlyContinue | 
+Where-Object { $_.Name -notin @("Program Files","Program Files (x86)","PerfLogs","Windows","Users") } | 
 Format-Table Name
 Write-Host ""
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\Program Files (x86)`"${RESET}"
-Get-ChildItem "C:\Program Files (x86)" -ErrorAction SilentlyContinue |
+Get-ChildItem "C:\Program Files (x86)" -Force -ErrorAction SilentlyContinue |
 Where-Object { $_.Name -notmatch "Microsoft|Windows" } |
 Format-Table Name
 Write-Host ""
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}dir `"C:\Program Files`"${RESET}"
-Get-ChildItem "C:\Program Files" -ErrorAction SilentlyContinue |
+Get-ChildItem "C:\Program Files" -Force -ErrorAction SilentlyContinue |
 Where-Object { $_.Name -notmatch "Microsoft|Windows" } |
 Format-Table Name
 Write-Host ""
