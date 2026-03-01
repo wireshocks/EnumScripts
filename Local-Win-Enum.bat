@@ -168,11 +168,11 @@ dir "C:\" /ah 2>nul | findstr /V /I /C:"Windows" /C:"Users" /C:"PerfLogs" /C:"Pr
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\Program Files (x86)"%RESET%
-dir "C:\Program Files (x86)" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows"
+dir "C:\Program Files (x86)" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows" /C:"Common Files" /C:"Internet Explorer"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%dir "C:\Program Files"%RESET%
-dir "C:\Program Files" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows"
+dir "C:\Program Files" 2>nul | findstr /V /I /C:"Microsoft" /C:"Windows" /C:"Common Files" /C:"Internet Explorer" /C:"ModifiableWindowsApps" /C:"PowerShell" /C:"RSAT"
 echo.
 
 echo %BOLD%%BLUE%**** Scheduled Tasks (Non-Microsoft) ********************************************************************%RESET%
@@ -237,6 +237,7 @@ echo.
 echo %BOLD%%GREEN%[*] Enumeration Complete%RESET%
 <nul set /p "=%ESC%[?25h"
 endlocal
+
 
 
 
