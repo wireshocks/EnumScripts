@@ -165,7 +165,7 @@ echo.
 
 echo %BOLD%%BLUE%**** Network Connections *********************************************************************************%RESET%
 echo %YELLOW%[Command]%RESET% %GREEN%netstat -ano | findstr LISTENING%RESET%
-netstat -ano | findstr "127.0.0.1" "LISTENING"
+netstat -ano | findstr "127.0.0.1"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%netstat -ano | findstr ESTABLISHED%RESET%
