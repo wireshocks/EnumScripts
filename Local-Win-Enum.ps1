@@ -156,8 +156,8 @@ Write-Host ""
 # ===============================
 Write-Host "${BOLD}${BLUE}**** Network Connections ****${RESET}"
 
-Write-Host "${YELLOW}[Command]${RESET} ${GREEN}netstat -ano | findstr LISTENING${RESET}"
-netstat -ano | findstr "LISTENING"
+Write-Host "${YELLOW}[Command]${RESET} ${GREEN}netstat -ano | findstr LISTENING on 127.0.0.1${RESET}"
+netstat -ano | findstr "127.0.0.1" | findstr "LISTENING"
 Write-Host ""
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}netstat -ano | findstr ESTABLISHED${RESET}"
@@ -205,11 +205,11 @@ Write-Host ""
 Write-Host "${BOLD}${BLUE}**** Scheduled Tasks (Non-Microsoft) ****${RESET}"
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}schtasks /query /fo LIST${RESET}"
-schtasks /query /fo LIST 2>$null | findstr /i /v "Microsoft"
+schtasks /query /fo CSV | ConvertFrom-Csv | Where-Object { $_.TaskName -notlike "*Microsoft*" -and $_.TaskName -ne "TaskName" -and $_.TaskName -ne "N/A" } | Select-Object TaskName, Status | Format-Table -AutoSize
 Write-Host ""
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}schtasks /query /fo CSV | ConvertFrom-Csv | Where-Object {$_.TaskPath -notlike "*Microsoft*"} | Select-Object TaskName,TaskPath,Status | Format-Table${RESET}"
-schtasks /query /fo CSV | ConvertFrom-Csv | Where-Object {$_.TaskPath -notlike "*Microsoft*"} | Select-Object TaskName,TaskPath,Status | Format-Table
+schtasks /query /fo CSV | ConvertFrom-Csv | Where-Object { $_.TaskName -notlike "*Microsoft*" -and $_.TaskPath -notlike "*Microsoft*" -and $_.TaskName -ne "TaskName" } | Select-Object TaskName, TaskPath, Status | Format-Table -AutoSize
 Write-Host ""
 
 # ===============================
