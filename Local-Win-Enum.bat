@@ -165,8 +165,8 @@ echo.
 
 echo %BOLD%%BLUE%**** Network Connections *********************************************************************************%RESET%
 echo %BOLD%%BLUE%****If locally accessable then you need port forwarding****%RESET%
-echo %YELLOW%[Command]%RESET% %GREEN%netstat -ano | findstr "127.0.0.1%RESET%
-netstat -ano | findstr "127.0.0.1"
+echo %YELLOW%[Command]%RESET% %GREEN%netstat -ano | findstr "127.0.0.1" |findstr "LISTENING"%RESET%
+netstat -ano | findstr "127.0.0.1" |findstr "LISTENING"
 echo.
 
 echo %YELLOW%[Command]%RESET% %GREEN%netstat -ano | findstr ESTABLISHED%RESET%
