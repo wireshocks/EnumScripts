@@ -157,6 +157,7 @@ Write-Host ""
 Write-Host "${BOLD}${BLUE}**** Network Connections ****${RESET}"
 
 Write-Host "${YELLOW}[Command]${RESET} ${GREEN}netstat -ano | findstr LISTENING on 127.0.0.1${RESET}"
+Write-Host "${YELLOW}[Command]${RESET} ${GREEN}If locally accessable then you need port forwarding${RESET}"
 netstat -ano | findstr "127.0.0.1" | findstr "LISTENING"
 Write-Host ""
 
