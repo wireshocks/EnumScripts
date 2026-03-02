@@ -164,7 +164,7 @@ net view \\127.0.0.1 >nul 2>&1 && net view \\127.0.0.1
 echo.
 
 echo %BOLD%%BLUE%**** Network Connections *********************************************************************************%RESET%
-echo %YELLOW%[Command]%RESET% %GREEN%netstat -ano | findstr 127.0.0.1 #If locally accessable then you need port forwarding%RESET%
+echo %YELLOW%[Hint]%RESET% %GREEN%If locally accessable then you need port forwarding%RESET%
 netstat -ano | findstr "127.0.0.1"
 echo.
 
