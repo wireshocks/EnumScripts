@@ -86,3 +86,4 @@ done < "$WRAPPERS_FILE"
 
 echo -ne "\r"
 echo -e "${YELLOW}[*] Enumeration complete. Tested $counter payloads, found $found vulnerabilities.${NC}"
+echo -e "${YELLOW}[*] If nothing found, add/modify the target url parameter in the wrappers.txt"
