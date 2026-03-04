@@ -5,6 +5,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 wget -q https://raw.githubusercontent.com/wireshocks/EnumScripts/refs/heads/main/wrappers.txt
+sleep 3
 read -p "Enter target URL (e.g. http://192.168.138.229/index.php): " TARGET
 read -p "Enter parameter name (e.g. file, page, path): " PARAM
 read -p "Enter path to wrappers file (default: wrappers.txt): " WRAPPERS_FILE
