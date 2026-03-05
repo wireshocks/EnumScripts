@@ -75,6 +75,7 @@ other mistakes
 -if you found a file xyz.ps1 and the content says something exporting etc, then try to execute the ps1 file. it is not just for viewing the ps1 file to find creds. sometime just execute it so it can produce or output some other files
 that may have creds.
 - if you have access to passwd file through lfi or something and you don't have anything. but wait you have something. you can pinpoint usernames from passwd file and target that user's sensitive files such ssh key and .bash history
+- if you encounter wordpress website, and admin:admin not working, then the first thing is to check plugins and themese vulnerability using curl command
 
 
 
