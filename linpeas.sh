@@ -8459,7 +8459,7 @@ suids_files=$(find $ROOT_FOLDER -perm -4000 -type f ! -path "/dev/*" 2>/dev/null
 printf "%s\n" "$suids_files" | while read s; do
   [ -z "$s" ] && continue
   # Filtered "root root" from the ls output
-  s=$(ls -lahtr "$s" 2>/dev/null | grep -v "root root")
+  s=$(ls -lahtr "$s" 2>/dev/null | grep -v "snap")
   # If s is now empty (meaning it was root:root), skip to next file
   [ -z "$s" ] && continue
   
