@@ -81,6 +81,7 @@ that may have creds.
 -------------
 - i did escalate my privielge on ms01, and also obtained administrator hash, but didnot spray the hash on other user account such as c.rogers
 - i didnot turnoff the AV when running the mimikatz. that could be the reason that i could not get anything
+- you fucking forgot to use https://ippsec.rocks/. when you type .env, it can show all videos that contains .env
 
 
 
